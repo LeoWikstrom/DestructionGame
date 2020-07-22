@@ -9,6 +9,7 @@ namespace sf
 
 class Game;
 class Player;
+class Terrain;
 
 class PlayState : public GameState
 {
@@ -16,6 +17,7 @@ private:
 
 	sf::Font* m_pFont;
 	Player* m_pPlayer;
+	Terrain* m_pTerrain;
 
 public:
 	PlayState(Game* game);

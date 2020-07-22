@@ -2,20 +2,26 @@
 #include "SFML/Graphics.hpp"
 #include "Game.h"
 #include "Player.h"
+#include "Terrain.h"
+#include "Config.h"
 
-PlayState::PlayState(Game * game) : GameState(game)
+PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain())
 {
 	m_pFont = new sf::Font();
 	char* winDir = getenv("WinDir"); //Get the window directory
 	m_pFont->loadFromFile(std::string(winDir) + "\\Fonts\\Ebrima.ttf");
 
 	m_pPlayer = new Player("..\\resources\\player.png");
+
+	m_pTerrain->GenerateTerrain(100, 100, Config::GetInstance().GetWindowSizeHeight(), 0, Config::GetInstance().GetWindowSizeWidth(), 10, 4);
+
 }
 
 PlayState::~PlayState()
 {
 	delete m_pFont;
 	delete m_pPlayer;
+	delete m_pTerrain;
 }
 
 void PlayState::Update(float dt, sf::RenderWindow * window)
@@ -55,5 +61,6 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 void PlayState::Render(sf::RenderWindow * window)
 {
 	window->clear();
+	m_pTerrain->Render(window);
 	window->display();
 }
