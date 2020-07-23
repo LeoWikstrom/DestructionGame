@@ -39,29 +39,40 @@ void Entity::CheckTerrainCollision(sf::Image * terrain)
 			{
 				m_SpeedY = 0;
 				m_SpeedX = m_WalkingSpeed;
-				bool walkable = true;
+				bool walkableRight = true, walkableLeft = true;
 				int height = 0;
 
 				for (int j = m_BottomBound; j >= m_BottomBound - 3; --j)
 				{
-					if (terrain->getPixel(m_LeftBound, j) == sf::Color::White)
+					if (m_SpeedX < 0)
 					{
-						if (walkable == false)
+						if (terrain->getPixel(m_LeftBound, j) == sf::Color::White)
 						{
-							walkable = true;
+							walkableLeft = true;
+
+						}
+						else
+						{
+							walkableLeft = false;
+							height++;
+
 						}
 					}
-					else
+					else if (m_SpeedX > 0)
 					{
-						if (walkable == true)
+						if (terrain->getPixel(m_RightBound, j) == sf::Color::White)
 						{
-							walkable = false;
+							walkableRight = true;
+						}
+						else
+						{
+							walkableRight = false;
 							height++;
 						}
 					}
 				}
 
-				if (walkable)
+				if (walkableLeft && m_SpeedX < 0 || walkableRight && m_SpeedX > 0)
 				{
 					m_SpeedY = -20 * height;
 				}
@@ -71,6 +82,8 @@ void Entity::CheckTerrainCollision(sf::Image * terrain)
 				}
 				break;
 			}
+
+
 		}
 	}
 }

@@ -70,7 +70,7 @@ void Player::Update(float dt, sf::RenderWindow * window)
 	}
 
 	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 7;
-	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - 14;
+	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - 7;
 	m_TopBound = (int)m_pSprite->getGlobalBounds().top + 1;
 	m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pSprite->getGlobalBounds().height - 1;
 }
