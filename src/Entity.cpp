@@ -82,8 +82,6 @@ void Entity::CheckTerrainCollision(sf::Image * terrain)
 				}
 				break;
 			}
-
-
 		}
 	}
 }
