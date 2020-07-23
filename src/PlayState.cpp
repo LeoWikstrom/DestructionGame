@@ -26,7 +26,7 @@ PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain())
 	m_WasDownPressed = false;
 	m_WasRightPressed = false;
 
-	m_Enemies.push(new Enemy("..\\resources\\small_enemy.png", "..\\resources\\gun_small.png"));
+	m_Enemies.push(new Enemy("..\\resources\\small_enemy.png", "..\\resources\\gun_small.png", 200, 5));
 
 	sf::Image terrain = m_pTerrain->GetTerrain();
 }
@@ -184,6 +184,7 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 	m_pPlayer->CheckTerrainCollision(&m_pTerrain->GetTerrain());
 	m_pPlayer->Update(dt, window);
 	
+	m_Enemies.front()->CheckForPlayer(m_pPlayer->GetPosition().x, m_pPlayer->GetPosition().y);
 	m_Enemies.front()->CheckTerrainCollision(&m_pTerrain->GetTerrain());
 	m_Enemies.front()->Update(dt, window);
 }

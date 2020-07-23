@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <stdio.h>
 
-Enemy::Enemy(const char* texturePath, const char* weaponTexturePath) : Entity(texturePath, weaponTexturePath)
+Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, int detectionRadius, int accuracy) : Entity(texturePath, weaponTexturePath)
 {
 	m_pKeyFrameSize->x = 16;
 	m_pKeyFrameSize->y = 16;
@@ -25,17 +25,44 @@ Enemy::Enemy(const char* texturePath, const char* weaponTexturePath) : Entity(te
 	m_WalkingSpeed = -20;
 	m_SpeedX = -20;
 	m_SpeedY = 150;
+
+	m_DetectionRadius = detectionRadius;
+	m_Accuracy = accuracy;
+
+	m_pWeaponSprite->setTextureRect(sf::IntRect(0, 0, m_pWeaponSprite->getGlobalBounds().width, m_pWeaponSprite->getGlobalBounds().height));
+	m_pWeaponSprite->setOrigin(sf::Vector2f(m_pWeaponSprite->getGlobalBounds().width / 2, m_pWeaponSprite->getGlobalBounds().height / 2));
+	m_pWeaponSprite->setPosition(sf::Vector2f(m_pStartPosition->x + 1, m_pStartPosition->y + 7));
+	m_WeaponAngle = 0;
 }
 
 Enemy::~Enemy()
 {
 }
 
+void Enemy::CheckForPlayer(int playerX, int playerY)
+{
+	if (sqrt(pow(m_pSprite->getPosition().x - playerX, 2) + pow(m_pSprite->getPosition().y - playerY, 2)) <= m_DetectionRadius && m_pSprite->getPosition().x > playerX)
+	{
+		m_WalkingSpeed = 0;
+		AimForPlayer(playerX, playerY);
+	}
+	else
+	{
+		m_WalkingSpeed = -20;
+	}
+}
+
+void Enemy::AimForPlayer(int playerX, int playerY)
+{
+	m_pSprite->setTextureRect(sf::IntRect(2 * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
+	
+}
+
 void Enemy::Update(float dt, sf::RenderWindow * window)
 {
 	Move(dt);
 
-	if (m_SpeedX != 0 || m_SpeedY == 0)
+	if ((m_SpeedX != 0 || m_SpeedY == 0) && m_WalkingSpeed != 0)
 	{
 		m_KeyFrameDuration += dt;
 		if (m_KeyFrameDuration > m_AnimationSpeed)
@@ -56,10 +83,14 @@ void Enemy::Update(float dt, sf::RenderWindow * window)
 	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - 2;
 	m_TopBound = (int)m_pSprite->getGlobalBounds().top + 1;
 	m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pSprite->getGlobalBounds().height - 1;
-
 }
 
 void Enemy::Render(sf::RenderWindow * window)
 {
+	if (m_WalkingSpeed == 0)
+	{
+		window->draw(*m_pWeaponSprite);
+	}
+
 	window->draw(*m_pSprite);
 }

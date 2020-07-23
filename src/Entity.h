@@ -48,6 +48,7 @@ public:
 	virtual void CheckTerrainCollision(sf::Image* terrain);
 	virtual void RotateWeapon(bool up);
 	virtual void SetWeaponRotation(float rotation);
+	virtual const sf::Vector2f GetPosition();
 
 	virtual void Update(float dt, sf::RenderWindow* window) = 0;
 	virtual void Render(sf::RenderWindow* window) = 0;

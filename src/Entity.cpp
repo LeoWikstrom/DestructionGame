@@ -35,7 +35,6 @@ void Entity::Move(float dt)
 void Entity::CheckTerrainCollision(sf::Image * terrain)
 {
 	m_SpeedY = 100;
-	m_SpeedX = 0;
 	if (m_BottomBound < Config::GetInstance().GetWindowSizeHeight())
 	{
 		for (int i = m_LeftBound; i <= m_RightBound; ++i)
@@ -106,12 +105,16 @@ void Entity::RotateWeapon(bool direction)
 			m_WeaponAngle = (360 - m_pWeaponSprite->getRotation());
 		}
 	}
-	printf("%f\n", m_WeaponAngle);
 }
 
 void Entity::SetWeaponRotation(float rotation)
 {
 	m_pWeaponSprite->setRotation(rotation);
 	m_WeaponAngle = m_pWeaponSprite->getRotation();
+}
+
+const sf::Vector2f Entity::GetPosition()
+{
+	return m_pSprite->getPosition();
 }
 
