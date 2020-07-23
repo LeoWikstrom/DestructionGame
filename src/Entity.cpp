@@ -2,10 +2,12 @@
 #include "Config.h"
 #include <SFML/Graphics.hpp>
 
-Entity::Entity(const char * texturePath) : m_pTex(new sf::Texture), m_pSprite(new sf::Sprite), m_pCurrentKeyFrame(new sf::Vector2i), m_pKeyFrameSize(new sf::Vector2i), m_pSpriteSheetSize(new sf::Vector2i), m_pStartPosition(new sf::Vector2f)
+Entity::Entity(const char * texturePath, const char * weaponTexturePath) : m_pTex(new sf::Texture), m_pSprite(new sf::Sprite), m_pWeaponTex(new sf::Texture), m_pWeaponSprite(new sf::Sprite), m_pCurrentKeyFrame(new sf::Vector2i), m_pKeyFrameSize(new sf::Vector2i), m_pSpriteSheetSize(new sf::Vector2i), m_pStartPosition(new sf::Vector2f)
 {
 	m_pTex->loadFromFile(texturePath);
 	m_pSprite->setTexture(*m_pTex);
+	m_pWeaponTex->loadFromFile(weaponTexturePath);
+	m_pWeaponSprite->setTexture(*m_pWeaponTex);
 	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 1;
 	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - 1;
 	m_TopBound = (int)m_pSprite->getGlobalBounds().top + 1;
@@ -16,6 +18,8 @@ Entity::~Entity()
 {
 	delete m_pTex;
 	delete m_pSprite;
+	delete m_pWeaponTex;
+	delete m_pWeaponSprite;
 	delete m_pCurrentKeyFrame;
 	delete m_pKeyFrameSize;
 	delete m_pSpriteSheetSize;
@@ -25,6 +29,7 @@ Entity::~Entity()
 void Entity::Move(float dt)
 {
 	m_pSprite->move(m_SpeedX * dt, m_SpeedY * dt);
+	m_pWeaponSprite->move(m_SpeedX * dt, m_SpeedY * dt);
 }
 
 void Entity::CheckTerrainCollision(sf::Image * terrain)
@@ -35,7 +40,7 @@ void Entity::CheckTerrainCollision(sf::Image * terrain)
 	{
 		for (int i = m_LeftBound; i <= m_RightBound; ++i)
 		{
-			if (terrain->getPixel(i, m_BottomBound) == sf::Color::Black)
+			if (terrain->getPixel(i, m_BottomBound) == GROUND_COLOUR)
 			{
 				m_SpeedY = 0;
 				m_SpeedX = m_WalkingSpeed;
@@ -46,7 +51,7 @@ void Entity::CheckTerrainCollision(sf::Image * terrain)
 				{
 					if (m_SpeedX < 0)
 					{
-						if (terrain->getPixel(m_LeftBound, j) == sf::Color::White)
+						if (terrain->getPixel(m_LeftBound, j) == SKY_COLOUR)
 						{
 							walkableLeft = true;
 
@@ -60,7 +65,7 @@ void Entity::CheckTerrainCollision(sf::Image * terrain)
 					}
 					else if (m_SpeedX > 0)
 					{
-						if (terrain->getPixel(m_RightBound, j) == sf::Color::White)
+						if (terrain->getPixel(m_RightBound, j) == SKY_COLOUR)
 						{
 							walkableRight = true;
 						}
@@ -84,5 +89,29 @@ void Entity::CheckTerrainCollision(sf::Image * terrain)
 			}
 		}
 	}
+}
+
+void Entity::RotateWeapon(bool direction)
+{
+	if ((m_WeaponAngle >= 0 && m_WeaponAngle < 45) || (m_WeaponAngle <= 360 && m_WeaponAngle > 315) || (m_WeaponAngle == 45 && !direction) || (m_WeaponAngle == 315 && direction))
+	{
+		if (m_pCurrentKeyFrame->y == 0)
+		{
+			m_pWeaponSprite->rotate(5.625f * (2 * direction - 1));
+			m_WeaponAngle = m_pWeaponSprite->getRotation();
+		}
+		else
+		{
+			m_pWeaponSprite->rotate(5.625f * -(2 * direction - 1));
+			m_WeaponAngle = (360 - m_pWeaponSprite->getRotation());
+		}
+	}
+	printf("%f\n", m_WeaponAngle);
+}
+
+void Entity::SetWeaponRotation(float rotation)
+{
+	m_pWeaponSprite->setRotation(rotation);
+	m_WeaponAngle = m_pWeaponSprite->getRotation();
 }
 

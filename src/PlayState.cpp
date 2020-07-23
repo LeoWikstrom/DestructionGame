@@ -12,13 +12,21 @@ PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain())
 	char* winDir = getenv("WinDir"); //Get the window directory
 	m_pFont->loadFromFile(std::string(winDir) + "\\Fonts\\Ebrima.ttf");
 
-	m_pPlayer = new Player("..\\resources\\player.png");
+	m_pPlayer = new Player("..\\resources\\player.png", "..\\resources\\gun_player.png");
 
 	m_pTerrain->GenerateTerrain(300, 300, Config::GetInstance().GetWindowSizeHeight(), 0, Config::GetInstance().GetWindowSizeWidth(), 50, 4);
 
 	m_WasSpacePressed = false;
+	m_WasWPressed = false;
+	m_WasAPressed = false;
+	m_WasSPressed = false;
+	m_WasDPressed = false;
+	m_WasUpPressed = false;
+	m_WasLeftPressed = false;
+	m_WasDownPressed = false;
+	m_WasRightPressed = false;
 
-	m_Enemies.push(new Enemy("..\\resources\\small_enemy.png"));
+	m_Enemies.push(new Enemy("..\\resources\\small_enemy.png", "..\\resources\\gun_small.png"));
 
 	sf::Image terrain = m_pTerrain->GetTerrain();
 }
@@ -54,6 +62,10 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 		bool isAPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
 		bool isSPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::S);
 		bool isDPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
+		bool isUpPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
+		bool isLeftPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
+		bool isDownPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
+		bool isRightPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
 
 		if (isWPressed && !m_WasWPressed)
 		{
@@ -65,7 +77,7 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 		}
 		if (isAPressed && !m_WasAPressed)
 		{
-			m_pPlayer->SetWalkingSpeed(-30);
+			m_pPlayer->SetWalkingSpeed(-50 + 20 * m_pPlayer->IsWeaponOut());
 			m_WasAPressed = true;
 		}
 		else if (!isAPressed && m_WasAPressed)
@@ -84,7 +96,7 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 		}
 		if (isDPressed && !m_WasDPressed)
 		{
-			m_pPlayer->SetWalkingSpeed(30);
+			m_pPlayer->SetWalkingSpeed(50 - 20 * m_pPlayer->IsWeaponOut());
 			m_WasDPressed = true;
 		}
 		else if (!isDPressed && m_WasDPressed)
@@ -103,6 +115,70 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 		{
 			m_WasSpacePressed = false;
 		}
+
+		if (isRightPressed && !m_WasRightPressed)
+		{
+			m_pPlayer->ShowWeapon(true);
+			m_WasRightPressed = true;
+
+			if (isDPressed)
+			{
+				m_pPlayer->SetWalkingSpeed(50 - 20 * m_pPlayer->IsWeaponOut());
+			}
+			else if (isAPressed)
+			{
+				m_pPlayer->SetWalkingSpeed(-50 + 20 * m_pPlayer->IsWeaponOut());
+			}
+		}
+		else if (!isRightPressed && m_WasRightPressed)
+		{
+			m_WasRightPressed = false;
+		}
+		if (isLeftPressed && !m_WasLeftPressed)
+		{
+			m_pPlayer->ShowWeapon(false);
+			m_WasLeftPressed = true;
+
+			if (isDPressed)
+			{
+				m_pPlayer->SetWalkingSpeed(50 - 20 * m_pPlayer->IsWeaponOut());
+			}
+			else if (isAPressed)
+			{
+				m_pPlayer->SetWalkingSpeed(-50 + 20 * m_pPlayer->IsWeaponOut());
+			}
+		}
+		else if (!isLeftPressed && m_WasLeftPressed)
+		{
+			m_WasLeftPressed = false;
+		}
+
+		if (isUpPressed && !m_WasUpPressed)
+		{
+			if (m_pPlayer->IsWeaponOut())
+			{
+				m_pPlayer->RotateWeapon(false);
+			}
+			m_WasUpPressed = true;
+		}
+		else if (!isUpPressed && m_WasUpPressed)
+		{
+			m_WasUpPressed = false;
+			m_WasDownPressed = false;
+		}
+		if (isDownPressed && !m_WasDownPressed)
+		{
+			if (m_pPlayer->IsWeaponOut())
+			{
+				m_pPlayer->RotateWeapon(true);
+			}
+			m_WasDownPressed = true;
+		}
+		else if (!isDownPressed && m_WasDownPressed)
+		{
+			m_WasDownPressed = false;
+			m_WasUpPressed = false;
+		}
 	}
 
 	m_pPlayer->CheckTerrainCollision(&m_pTerrain->GetTerrain());
@@ -116,7 +192,7 @@ void PlayState::Render(sf::RenderWindow * window)
 {
 	window->clear();
 	m_pTerrain->Render(window);
-	m_pPlayer->Render(window);
 	m_Enemies.front()->Render(window);
+	m_pPlayer->Render(window);
 	window->display();
 }

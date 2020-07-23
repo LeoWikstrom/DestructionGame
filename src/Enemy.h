@@ -4,8 +4,9 @@
 
 class Enemy : public Entity
 {
+private:
 public:
-	Enemy(const char* texturePath);
+	Enemy(const char* texturePath, const char* weaponTexturePath);
 	~Enemy();
 
 	virtual void Update(float dt, sf::RenderWindow* window);

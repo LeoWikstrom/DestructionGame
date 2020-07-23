@@ -49,7 +49,7 @@ void Terrain::GenerateTerrain(unsigned int startHeight, unsigned int endHeight, 
 	midPoints.push_back(startHeight);
 	RecursiveGenTerrainHelper(startHeight, endHeight, maxHeight, minHeight, length, divisions, maxDisplacement, &midPoints);
 	midPoints.push_back(endHeight);
-	m_pImage->create(length, maxHeight, sf::Color::White);
+	m_pImage->create(length, maxHeight, SKY_COLOUR);
 
 	int startLineHeight = 0;
 	int endLineHeight = 0;
@@ -85,7 +85,7 @@ void Terrain::GenerateTerrain(unsigned int startHeight, unsigned int endHeight, 
 
 		for (unsigned int j = 0; j < height; j++)
 		{
-			m_pImage->setPixel(i, m_pImage->getSize().y - 1 - j, sf::Color::Black);
+			m_pImage->setPixel(i, m_pImage->getSize().y - 1 - j, GROUND_COLOUR);
 		}
 	}
 
@@ -110,7 +110,7 @@ sf::Image& Terrain::GetTerrain()
 void Terrain::DrawCircle(int x, int y, int radius)
 {
 	sf::CircleShape explosion(radius);
-	explosion.setFillColor(sf::Color::White);
+	explosion.setFillColor(SKY_COLOUR);
 	explosion.setPosition(x, y);
 	m_pRenderTex->draw(explosion);
 

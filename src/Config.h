@@ -5,6 +5,10 @@
 This class holds all the configurations for the game(ex. window size)
 The class is a singleton to access its values wherever in the code.
 */
+
+#define GROUND_COLOUR sf::Color::Green
+#define SKY_COLOUR sf::Color::Cyan
+
 class Config {
 private:
 	//Init

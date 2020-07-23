@@ -19,6 +19,8 @@ class Entity
 protected:
 	sf::Sprite* m_pSprite;
 	sf::Texture* m_pTex;
+	sf::Sprite* m_pWeaponSprite;
+	sf::Texture* m_pWeaponTex;
 
 	sf::Vector2i* m_pCurrentKeyFrame;
 	sf::Vector2i* m_pKeyFrameSize;
@@ -26,6 +28,10 @@ protected:
 	sf::Vector2f* m_pStartPosition;
 	float m_AnimationSpeed;
 	float m_KeyFrameDuration;
+	float m_WeaponAngle;
+	int m_BaseKeyFrame;
+	int m_AnimationStart;
+	int m_AnimationLength;
 	int m_WalkingSpeed;
 	int m_SpeedX;
 	int m_SpeedY;
@@ -35,11 +41,13 @@ protected:
 	int m_BottomBound;
 
 public:
-	Entity(const char* texturePath);
+	Entity(const char* texturePath, const char* weaponTexturePath);
 	virtual ~Entity();
 
 	virtual void Move(float dt);
 	virtual void CheckTerrainCollision(sf::Image* terrain);
+	virtual void RotateWeapon(bool up);
+	virtual void SetWeaponRotation(float rotation);
 
 	virtual void Update(float dt, sf::RenderWindow* window) = 0;
 	virtual void Render(sf::RenderWindow* window) = 0;

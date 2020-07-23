@@ -25,6 +25,10 @@ private:
 	bool m_WasAPressed;
 	bool m_WasSPressed;
 	bool m_WasDPressed;
+	bool m_WasUpPressed;
+	bool m_WasLeftPressed;
+	bool m_WasDownPressed;
+	bool m_WasRightPressed;
 	std::queue<Enemy*> m_Enemies;
 
 public:
