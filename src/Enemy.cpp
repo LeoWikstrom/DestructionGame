@@ -4,10 +4,14 @@
 
 Enemy::Enemy(const char * texturePath) : Entity(texturePath)
 {
-	m_pKeyFrameSize = new sf::Vector2i(16, 16);
-	m_pSpriteSheetSize = new sf::Vector2i(4, 1);
-	m_pCurrentKeyFrame = new sf::Vector2i(0, 0);
-	m_pStartPosition = new sf::Vector2f(400, 200);
+	m_pKeyFrameSize->x = 16;
+	m_pKeyFrameSize->y = 16;
+	m_pSpriteSheetSize->x = 4;
+	m_pSpriteSheetSize->y = 1;
+	m_pCurrentKeyFrame->x = 0;
+	m_pCurrentKeyFrame->y = 0;
+	m_pStartPosition->x = 400;
+	m_pStartPosition->y = 200;
 	m_AnimationSpeed = 0.15f;
 	m_KeyFrameDuration = 0.f;
 
