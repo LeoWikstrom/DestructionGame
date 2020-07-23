@@ -117,6 +117,8 @@ void Terrain::DrawCircle(int x, int y, int radius)
 	m_pRenderTex->display();
 
 	m_pSprite->setTexture(m_pRenderTex->getTexture());
+
+	*m_pImage = m_pRenderTex->getTexture().copyToImage();
 }
 
 void Terrain::Render(sf::RenderWindow* window)

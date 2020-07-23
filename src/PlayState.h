@@ -21,6 +21,10 @@ private:
 	Player* m_pPlayer;
 	Terrain* m_pTerrain;
 	bool m_WasSpacePressed;
+	bool m_WasWPressed;
+	bool m_WasAPressed;
+	bool m_WasSPressed;
+	bool m_WasDPressed;
 	std::queue<Enemy*> m_Enemies;
 
 public:
