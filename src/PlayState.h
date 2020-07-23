@@ -2,6 +2,7 @@
 #define PLAYSTATE_H
 #include "GameState.h"
 #include <vector>
+#include <queue>
 namespace sf
 {
 	class Font;
@@ -10,6 +11,7 @@ namespace sf
 class Game;
 class Player;
 class Terrain;
+class Enemy;
 
 class PlayState : public GameState
 {
@@ -19,6 +21,7 @@ private:
 	Player* m_pPlayer;
 	Terrain* m_pTerrain;
 	bool m_WasSpacePressed;
+	std::queue<Enemy*> m_Enemies;
 
 public:
 	PlayState(Game* game);

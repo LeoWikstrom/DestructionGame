@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "Terrain.h"
 #include "Config.h"
+#include "Enemy.h"
 
 PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain())
 {
@@ -16,6 +17,8 @@ PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain())
 	m_pTerrain->GenerateTerrain(300, 300, Config::GetInstance().GetWindowSizeHeight(), 0, Config::GetInstance().GetWindowSizeWidth(), 50, 4);
 
 	m_WasSpacePressed = false;
+
+	m_Enemies.push(new Enemy("..\\resources\\small_enemy.png"));
 }
 
 PlayState::~PlayState()
@@ -23,6 +26,11 @@ PlayState::~PlayState()
 	delete m_pFont;
 	delete m_pPlayer;
 	delete m_pTerrain;
+	while (!m_Enemies.empty())
+	{
+		delete m_Enemies.front();
+		m_Enemies.pop();
+	}
 }
 
 void PlayState::Update(float dt, sf::RenderWindow * window)
@@ -64,11 +72,16 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 			m_WasSpacePressed = false;
 		}
 	}
+
+	m_pPlayer->Update(dt, window);
+	m_Enemies.front()->Update(dt, window);
 }
 
 void PlayState::Render(sf::RenderWindow * window)
 {
 	window->clear();
 	m_pTerrain->Render(window);
+	m_pPlayer->Render(window);
+	m_Enemies.front()->Render(window);
 	window->display();
 }
