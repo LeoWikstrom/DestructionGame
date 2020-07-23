@@ -18,6 +18,7 @@ private:
 	sf::Font* m_pFont;
 	Player* m_pPlayer;
 	Terrain* m_pTerrain;
+	bool m_WasSpacePressed;
 
 public:
 	PlayState(Game* game);

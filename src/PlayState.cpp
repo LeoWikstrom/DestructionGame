@@ -13,8 +13,9 @@ PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain())
 
 	m_pPlayer = new Player("..\\resources\\player.png");
 
-	m_pTerrain->GenerateTerrain(100, 100, Config::GetInstance().GetWindowSizeHeight(), 0, Config::GetInstance().GetWindowSizeWidth(), 10, 4);
+	m_pTerrain->GenerateTerrain(300, 300, Config::GetInstance().GetWindowSizeHeight(), 0, Config::GetInstance().GetWindowSizeWidth(), 50, 4);
 
+	m_WasSpacePressed = false;
 }
 
 PlayState::~PlayState()
@@ -26,7 +27,6 @@ PlayState::~PlayState()
 
 void PlayState::Update(float dt, sf::RenderWindow * window)
 {
-
 	//Input
 	sf::Event event;
 	if (window->hasFocus())
@@ -52,8 +52,16 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 		{
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+		bool isSpacePressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
+
+		if (isSpacePressed && !m_WasSpacePressed)
 		{
+			m_pTerrain->DrawCircle(rand() % Config::GetInstance().GetWindowSizeWidth(), rand() % 300 + (Config::GetInstance().GetWindowSizeHeight() - 300), rand() % 100);
+			m_WasSpacePressed = true;
+		}
+		else if (!isSpacePressed && m_WasSpacePressed)
+		{
+			m_WasSpacePressed = false;
 		}
 	}
 }

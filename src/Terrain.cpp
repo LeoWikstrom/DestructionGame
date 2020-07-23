@@ -3,7 +3,7 @@
 #include <vector>
 #include "Config.h"
 #include <iostream>
-Terrain::Terrain(): m_pImage(new sf::Image()), m_pTexture(new sf::Texture), m_pSprite(new sf::Sprite)
+Terrain::Terrain() : m_pImage(new sf::Image()), m_pTexture(new sf::Texture), m_pSprite(new sf::Sprite), m_pRenderTex(new sf::RenderTexture)
 {
 }
 
@@ -12,6 +12,7 @@ Terrain::~Terrain()
 	delete m_pImage;
 	delete m_pTexture;
 	delete m_pSprite;
+	delete m_pRenderTex;
 }
 
 void RecursiveGenTerrainHelper(int startHeight, int endHeight, int maxHeight, int minHeight, unsigned int length, unsigned int divisions, unsigned int maxDisplacement, std::vector<int>* midPoints)
@@ -94,11 +95,28 @@ void Terrain::GenerateTerrain(unsigned int startHeight, unsigned int endHeight, 
 	m_pTexture->loadFromImage(*m_pImage);
 	m_pSprite->setTexture(*m_pTexture);
 	m_pSprite->setTextureRect(sf::IntRect(0, 0, Config::GetInstance().GetWindowSizeWidth(), Config::GetInstance().GetWindowSizeHeight()));
+	m_pRenderTex->create(Config::GetInstance().GetWindowSizeWidth(), Config::GetInstance().GetWindowSizeHeight());
+	m_pRenderTex->clear();
+	m_pRenderTex->draw(*m_pSprite);
+	m_pRenderTex->display();
+	m_pSprite->setTexture(m_pRenderTex->getTexture());
 }
 
 sf::Image& Terrain::GetTerrain()
 {
 	return *m_pImage;
+}
+
+void Terrain::DrawCircle(int x, int y, int radius)
+{
+	sf::CircleShape explosion(radius);
+	explosion.setFillColor(sf::Color::White);
+	explosion.setPosition(x, y);
+	m_pRenderTex->draw(explosion);
+
+	m_pRenderTex->display();
+
+	m_pSprite->setTexture(m_pRenderTex->getTexture());
 }
 
 void Terrain::Render(sf::RenderWindow* window)
