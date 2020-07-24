@@ -34,11 +34,14 @@ protected:
 	int m_AnimationLength;
 	int m_WalkingSpeed;
 	int m_SpeedX;
-	int m_SpeedY;
+	float m_SpeedY;
 	int m_LeftBound;
 	int m_RightBound;
 	int m_TopBound;
 	int m_BottomBound;
+	bool m_Falling;
+	bool m_Jumping;
+	float m_FallingTime;
 
 public:
 	Entity(const char* texturePath, const char* weaponTexturePath);
@@ -49,6 +52,7 @@ public:
 	virtual void RotateWeapon(bool up);
 	virtual void SetWeaponRotation(float rotation);
 	virtual const sf::Vector2f GetPosition();
+	virtual bool IsInAir();
 
 	virtual void Update(float dt, sf::RenderWindow* window) = 0;
 	virtual void Render(sf::RenderWindow* window) = 0;

@@ -12,6 +12,9 @@ Entity::Entity(const char * texturePath, const char * weaponTexturePath) : m_pTe
 	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - 1;
 	m_TopBound = (int)m_pSprite->getGlobalBounds().top + 1;
 	m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pSprite->getGlobalBounds().height - 1;
+	
+	m_Falling = false;
+	m_FallingTime = 0;
 }
 
 Entity::~Entity()
@@ -28,22 +31,33 @@ Entity::~Entity()
 
 void Entity::Move(float dt)
 {
+	if (m_Falling)
+	{
+		m_SpeedY += 9.81*20*dt;
+		m_Jumping = false;
+		m_FallingTime += dt;
+	}
 	m_pSprite->move(m_SpeedX * dt, m_SpeedY * dt);
 	m_pWeaponSprite->move(m_SpeedX * dt, m_SpeedY * dt);
 }
 
 void Entity::CheckTerrainCollision(sf::Image * terrain)
 {
-	m_SpeedY = 100;
+	m_Falling = true;
 	if (m_BottomBound < Config::GetInstance().GetWindowSizeHeight())
 	{
 		for (int i = m_LeftBound; i <= m_RightBound; ++i)
 		{
 			if (terrain->getPixel(i, m_BottomBound) == GROUND_COLOUR)
 			{
-				m_SpeedY = 0;
+				if (!m_Jumping)
+				{
+					m_SpeedY = 0;
+				}
+				m_Falling = false;
+				m_FallingTime = 0;
 				m_SpeedX = m_WalkingSpeed;
-				bool walkableRight = true, walkableLeft = true;
+				bool walkableRight = true, walkableLeft = true, fullStop = false;
 				int height = 0;
 
 				for (int j = m_BottomBound; j >= m_BottomBound - 3; --j)
@@ -76,13 +90,43 @@ void Entity::CheckTerrainCollision(sf::Image * terrain)
 					}
 				}
 
-				if (walkableLeft && m_SpeedX < 0 || walkableRight && m_SpeedX > 0)
+				for (int j = m_BottomBound - 4; j >= m_TopBound; --j)
+				{
+					if (m_SpeedX < 0)
+					{
+						if (terrain->getPixel(m_LeftBound, j) == GROUND_COLOUR)
+						{
+							walkableLeft = false;
+							fullStop = true;
+						}
+					}
+					else if (m_SpeedX > 0)
+					{
+						if (terrain->getPixel(m_RightBound, j) == GROUND_COLOUR)
+						{
+							walkableRight = false;
+							fullStop = true;
+						}
+					}
+				}
+
+				if ((walkableLeft && m_SpeedX < 0 || walkableRight && m_SpeedX > 0) && !m_Jumping && !m_Falling && !fullStop)
 				{
 					m_SpeedY = -20 * height;
 				}
-				else
+				else if ((!m_Jumping && !m_Falling) || (m_Jumping && IsInAir()) || (m_Falling && IsInAir()) || fullStop)
 				{
+					m_pSprite->move(((m_SpeedX < 0) * 2 - 1) * (m_SpeedX != 0), 0);
 					m_SpeedX = 0;
+				}
+				break;
+			}
+
+			if (terrain->getPixel(i, m_TopBound) == GROUND_COLOUR)
+			{
+				if (m_SpeedY < 0)
+				{
+					m_SpeedY = 0;
 				}
 				break;
 			}
@@ -116,5 +160,10 @@ void Entity::SetWeaponRotation(float rotation)
 const sf::Vector2f Entity::GetPosition()
 {
 	return m_pSprite->getPosition();
+}
+
+bool Entity::IsInAir()
+{
+	return m_FallingTime > 0.5f;
 }
 

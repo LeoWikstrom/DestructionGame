@@ -36,6 +36,8 @@ Player::Player(const char* texturePath, const char* weaponTexturePath) : Entity(
 	m_pCoverSprite->setTexture(*m_pCoverTex);
 	m_pCoverSprite->setTextureRect(sf::IntRect(m_pCurrentKeyFrame->x * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
 	m_pCoverSprite->setPosition(*m_pStartPosition);
+
+	m_Jumping = false;
 }
 
 Player::~Player()
@@ -47,6 +49,14 @@ Player::~Player()
 void Player::SetWalkingSpeed(int speed)
 {
 	m_WalkingSpeed = speed;
+	if (!IsInAir())
+	{
+		m_SpeedX = m_WalkingSpeed;
+	}
+	else
+	{
+		m_SpeedX = m_WalkingSpeed / 2;
+	}
 }
 
 void Player::ShowWeapon(bool show)
@@ -63,6 +73,15 @@ void Player::ShowWeapon(bool show)
 		m_BaseKeyFrame = 0;
 		m_AnimationLength = 4;
 		m_AnimationStart = 0;
+	}
+}
+
+void Player::Jump()
+{
+	if (!IsInAir())
+	{
+		m_SpeedY = -100;
+		m_Jumping = true;
 	}
 }
 

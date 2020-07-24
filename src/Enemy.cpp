@@ -33,6 +33,8 @@ Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, int detecti
 	m_pWeaponSprite->setOrigin(sf::Vector2f(m_pWeaponSprite->getGlobalBounds().width / 2, m_pWeaponSprite->getGlobalBounds().height / 2));
 	m_pWeaponSprite->setPosition(sf::Vector2f(m_pStartPosition->x + 1, m_pStartPosition->y + 7));
 	m_WeaponAngle = 0;
+
+	m_Jumping = false;
 }
 
 Enemy::~Enemy()

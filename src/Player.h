@@ -15,6 +15,7 @@ public:
 
 	void SetWalkingSpeed(int speed);
 	void ShowWeapon(bool show);
+	void Jump();
 	bool IsWeaponOut();
 
 	virtual void Update(float dt, sf::RenderWindow* window);

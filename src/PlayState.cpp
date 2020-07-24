@@ -69,6 +69,7 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 
 		if (isWPressed && !m_WasWPressed)
 		{
+			m_pPlayer->Jump();
 			m_WasWPressed = true;
 		}
 		else if (!isWPressed && m_WasWPressed)
