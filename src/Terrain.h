@@ -24,6 +24,7 @@ public:
 	void GenerateTerrain(unsigned int startHeight, unsigned int endHeight, int maxHeight, int minHeight, unsigned int length, unsigned int maxDisplacement, unsigned int divisions);
 	sf::Image& GetTerrain();
 	void DrawCircle(int x, int y, int radius);
+	void Update();
 	void Render(sf::RenderWindow* window);
 };
 

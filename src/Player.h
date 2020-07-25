@@ -1,8 +1,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
-#include "Entity.h"
+#include "Character.h"
 
-class Player : public Entity
+class Player : public Character
 {
 private:
 	sf::Sprite* m_pCoverSprite;

@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <stdio.h>
 
-Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, int detectionRadius, int accuracy) : Entity(texturePath, weaponTexturePath)
+Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, int detectionRadius, int accuracy) : Character(texturePath, weaponTexturePath)
 {
 	m_pKeyFrameSize->x = 16;
 	m_pKeyFrameSize->y = 16;
@@ -79,6 +79,11 @@ void Enemy::Update(float dt, sf::RenderWindow * window)
 	if (m_pSprite->getPosition().x <= -16)
 	{
 		m_pSprite->setPosition(Config::GetInstance().GetWindowSizeWidth(), m_pSprite->getPosition().y);
+	}
+
+	if (m_pWeaponSprite->getPosition().x <= -16)
+	{
+		m_pWeaponSprite->setPosition(Config::GetInstance().GetWindowSizeWidth(), m_pWeaponSprite->getPosition().y);
 	}
 
 	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 2;

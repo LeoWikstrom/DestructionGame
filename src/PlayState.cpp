@@ -107,9 +107,9 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 			m_WasAPressed = false;
 		}
 
-		if (isSpacePressed && !m_WasSpacePressed)
+		if (isSpacePressed && !m_WasSpacePressed && m_pPlayer->IsWeaponOut())
 		{
-			m_pTerrain->DrawCircle(rand() % Config::GetInstance().GetWindowSizeWidth(), rand() % 350 + (Config::GetInstance().GetWindowSizeHeight() - 350), rand() % 100);
+			m_pPlayer->Shoot();
 			m_WasSpacePressed = true;
 		}
 		else if (!isSpacePressed && m_WasSpacePressed)
@@ -182,7 +182,10 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 		}
 	}
 
-	m_pPlayer->CheckTerrainCollision(&m_pTerrain->GetTerrain());
+	if (m_pPlayer->CheckTerrainCollision(&m_pTerrain->GetTerrain()))
+	{
+		m_pTerrain->Update();
+	}
 	m_pPlayer->Update(dt, window);
 	
 	m_Enemies.front()->CheckForPlayer(m_pPlayer->GetPosition().x, m_pPlayer->GetPosition().y);

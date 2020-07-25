@@ -1,9 +1,10 @@
 #include "Player.h"
 #include "Config.h"
+#include "Projectile.h"
 #include <SFML/Graphics.hpp>
 #include <stdio.h>
 
-Player::Player(const char* texturePath, const char* weaponTexturePath) : Entity(texturePath, weaponTexturePath), m_pCoverSprite(new sf::Sprite), m_pCoverTex(new sf::Texture)
+Player::Player(const char* texturePath, const char* weaponTexturePath) : Character(texturePath, weaponTexturePath), m_pCoverSprite(new sf::Sprite), m_pCoverTex(new sf::Texture)
 {
 	m_pKeyFrameSize->x = 24;
 	m_pKeyFrameSize->y = 25;
@@ -14,7 +15,7 @@ Player::Player(const char* texturePath, const char* weaponTexturePath) : Entity(
 	m_AnimationStart = 0;
 	m_pCurrentKeyFrame->x = m_AnimationStart;
 	m_pCurrentKeyFrame->y = 0;
-	m_pStartPosition->x = 100;
+	m_pStartPosition->x = Config::GetInstance().GetWindowSizeWidth() / 2;
 	m_pStartPosition->y = 200;
 	m_AnimationSpeed = 0.15f;
 	m_KeyFrameDuration = 0.15f;
@@ -24,7 +25,7 @@ Player::Player(const char* texturePath, const char* weaponTexturePath) : Entity(
 
 	m_WalkingSpeed = 0;
 	m_SpeedX = 0;
-	m_SpeedY = 150;
+	m_SpeedY = 0;
 
 	m_ShowWeapon = false;
 	m_pWeaponSprite->setTextureRect(sf::IntRect(m_pCurrentKeyFrame->x * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
@@ -38,6 +39,7 @@ Player::Player(const char* texturePath, const char* weaponTexturePath) : Entity(
 	m_pCoverSprite->setPosition(*m_pStartPosition);
 
 	m_Jumping = false;
+
 }
 
 Player::~Player()
@@ -81,6 +83,8 @@ void Player::Jump()
 	if (!IsInAir())
 	{
 		m_SpeedY = -100;
+		ShowWeapon(false);
+		m_WalkingSpeed = 50 * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
 		m_Jumping = true;
 	}
 }
@@ -92,11 +96,16 @@ bool Player::IsWeaponOut()
 
 void Player::Update(float dt, sf::RenderWindow * window)
 {
+	if (IsInAir())
+	{
+		ShowWeapon(false);
+	}
 	if (m_WalkingSpeed > 0)
 	{
 		if (m_pCurrentKeyFrame->y == 1)
 		{
 			m_pWeaponSprite->setRotation(m_WeaponAngle);
+			m_Projectiles.front()->SetDirection(1);
 		}
 		m_pCurrentKeyFrame->y = 0;
 	}
@@ -105,11 +114,20 @@ void Player::Update(float dt, sf::RenderWindow * window)
 		if (m_pCurrentKeyFrame->y == 0)
 		{
 			m_pWeaponSprite->setRotation(360 - m_WeaponAngle);
+			m_Projectiles.front()->SetDirection(-1);
 		}
 		m_pCurrentKeyFrame->y = 1;
 	}
 	Move(dt);
 	m_pCoverSprite->setPosition(m_pSprite->getPosition());
+	if (!m_Projectiles.front()->IsShooting())
+	{
+		m_Projectiles.front()->SetPosition(m_pWeaponSprite->getPosition().x, m_pWeaponSprite->getPosition().y - 5);
+	}
+	else
+	{
+		m_Projectiles.front()->Update(dt, window);
+	}
 
 	if (m_WalkingSpeed != 0)
 	{
@@ -144,6 +162,19 @@ void Player::Update(float dt, sf::RenderWindow * window)
 	{
 		m_pSprite->setPosition(Config::GetInstance().GetWindowSizeWidth(), m_pSprite->getPosition().y);
 	}
+	else if (m_pSprite->getPosition().x >= Config::GetInstance().GetWindowSizeWidth())
+	{
+		m_pSprite->setPosition(-16, m_pSprite->getPosition().y);
+	}
+
+	if (m_pWeaponSprite->getPosition().x <= -16)
+	{
+		m_pWeaponSprite->setPosition(Config::GetInstance().GetWindowSizeWidth(), m_pWeaponSprite->getPosition().y);
+	}
+	else if (m_pWeaponSprite->getPosition().x >= Config::GetInstance().GetWindowSizeWidth())
+	{
+		m_pWeaponSprite->setPosition(-16, m_pWeaponSprite->getPosition().y);
+	}
 
 	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 7;
 	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - 7;
@@ -153,10 +184,12 @@ void Player::Update(float dt, sf::RenderWindow * window)
 
 void Player::Render(sf::RenderWindow * window)
 {
+	m_Projectiles.front()->Render(window);
 	window->draw(*m_pSprite);
 	if (m_ShowWeapon)
 	{
 		window->draw(*m_pWeaponSprite);
 		window->draw(*m_pCoverSprite);
 	}
+	
 }

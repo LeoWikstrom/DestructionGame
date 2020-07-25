@@ -1,6 +1,5 @@
 #ifndef ENTITY_H
 #define ENTITY_H
-//#include <SFML/System/Vector2.hpp>
 
 namespace sf
 {
@@ -19,8 +18,6 @@ class Entity
 protected:
 	sf::Sprite* m_pSprite;
 	sf::Texture* m_pTex;
-	sf::Sprite* m_pWeaponSprite;
-	sf::Texture* m_pWeaponTex;
 
 	sf::Vector2i* m_pCurrentKeyFrame;
 	sf::Vector2i* m_pKeyFrameSize;
@@ -28,31 +25,25 @@ protected:
 	sf::Vector2f* m_pStartPosition;
 	float m_AnimationSpeed;
 	float m_KeyFrameDuration;
-	float m_WeaponAngle;
 	int m_BaseKeyFrame;
 	int m_AnimationStart;
 	int m_AnimationLength;
-	int m_WalkingSpeed;
-	int m_SpeedX;
+	float m_SpeedX;
 	float m_SpeedY;
 	int m_LeftBound;
 	int m_RightBound;
 	int m_TopBound;
 	int m_BottomBound;
-	bool m_Falling;
-	bool m_Jumping;
-	float m_FallingTime;
 
 public:
-	Entity(const char* texturePath, const char* weaponTexturePath);
+	Entity(const char* texturePath);
 	virtual ~Entity();
 
 	virtual void Move(float dt);
-	virtual void CheckTerrainCollision(sf::Image* terrain);
-	virtual void RotateWeapon(bool up);
-	virtual void SetWeaponRotation(float rotation);
+	virtual bool CheckTerrainCollision(sf::Image* terrain);
 	virtual const sf::Vector2f GetPosition();
-	virtual bool IsInAir();
+	virtual void SetPosition(int x, int y);
+	virtual void SetPosition(sf::Vector2f position);
 
 	virtual void Update(float dt, sf::RenderWindow* window) = 0;
 	virtual void Render(sf::RenderWindow* window) = 0;

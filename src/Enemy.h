@@ -1,8 +1,8 @@
 #ifndef ENEMY_H
 #define ENEMY_H
-#include "Entity.h"
+#include "Character.h"
 
-class Enemy : public Entity
+class Enemy : public Character
 {
 private:
 	int m_DetectionRadius;
