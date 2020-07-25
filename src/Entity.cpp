@@ -50,13 +50,17 @@ void Entity::CheckTerrainCollision(sf::Image * terrain)
 		{
 			if (terrain->getPixel(i, m_BottomBound) == GROUND_COLOUR)
 			{
-				if (!m_Jumping)
+				if (m_SpeedY >= 0)
 				{
-					m_SpeedY = 0;
+					if (!m_Jumping)
+					{
+						m_SpeedY = 0;
+					}
+					m_Falling = false;
+					m_FallingTime = 0;
+					m_SpeedX = m_WalkingSpeed;
 				}
-				m_Falling = false;
-				m_FallingTime = 0;
-				m_SpeedX = m_WalkingSpeed;
+
 				bool walkableRight = true, walkableLeft = true, fullStop = false;
 				int height = 0;
 
@@ -117,6 +121,7 @@ void Entity::CheckTerrainCollision(sf::Image * terrain)
 				else if ((!m_Jumping && !m_Falling) || (m_Jumping && IsInAir()) || (m_Falling && IsInAir()) || fullStop)
 				{
 					m_pSprite->move(((m_SpeedX < 0) * 2 - 1) * (m_SpeedX != 0), 0);
+					m_pWeaponSprite->move(((m_SpeedX < 0) * 2 - 1) * (m_SpeedX != 0), 0);
 					m_SpeedX = 0;
 				}
 				break;

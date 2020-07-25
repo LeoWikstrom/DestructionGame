@@ -4,9 +4,6 @@
 #include "Config.h"
 #include "PlayState.h"
 
-unsigned int width = 720;
-unsigned int height = 720;
-
 void Game::ChangeState(GameState* state)
 {
 	m_pState = state;
@@ -16,6 +13,9 @@ Game::Game()
 {
 	m_pWindow = new sf::RenderWindow(sf::VideoMode(Config::GetInstance().GetWindowSizeWidth(), Config::GetInstance().GetWindowSizeHeight()), "Destruction Game");
 	m_pState = new PlayState(this);
+	sf::Image icon;
+	icon.loadFromFile("..\\resources\\player_icon.png");
+	m_pWindow->setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 }
 
 Game::~Game()
