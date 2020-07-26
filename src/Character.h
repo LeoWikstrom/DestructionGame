@@ -40,6 +40,7 @@ public:
 	virtual void SetWeaponRotation(float rotation);
 	virtual void Shoot();
 	virtual bool IsInAir();
+	virtual bool IsExplosion();
 
 	virtual void Update(float dt, sf::RenderWindow* window) = 0;
 	virtual void Render(sf::RenderWindow* window) = 0;

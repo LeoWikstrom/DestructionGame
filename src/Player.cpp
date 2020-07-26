@@ -120,6 +120,7 @@ void Player::Update(float dt, sf::RenderWindow * window)
 	}
 	Move(dt);
 	m_pCoverSprite->setPosition(m_pSprite->getPosition());
+
 	if (!m_Projectiles.front()->IsShooting())
 	{
 		m_Projectiles.front()->SetPosition(m_pWeaponSprite->getPosition().x, m_pWeaponSprite->getPosition().y - 5);
@@ -127,6 +128,10 @@ void Player::Update(float dt, sf::RenderWindow * window)
 	else
 	{
 		m_Projectiles.front()->Update(dt, window);
+	}
+	if (m_Projectiles.front()->IsExplosion())
+	{
+		m_Projectiles.front()->UpdateExplosion(dt);
 	}
 
 	if (m_WalkingSpeed != 0)

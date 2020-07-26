@@ -182,7 +182,7 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 		}
 	}
 
-	if (m_pPlayer->CheckTerrainCollision(&m_pTerrain->GetTerrain()))
+	if (m_pPlayer->CheckTerrainCollision(&m_pTerrain->GetTerrain()) || m_pPlayer->IsExplosion())
 	{
 		m_pTerrain->Update();
 	}

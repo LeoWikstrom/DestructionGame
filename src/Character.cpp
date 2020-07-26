@@ -64,7 +64,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 				{
 					if (m_SpeedX < 0)
 					{
-						if (terrain->getPixel(m_LeftBound, j) == SKY_COLOUR)
+						if (terrain->getPixel(m_LeftBound, j) != GROUND_COLOUR)
 						{
 							walkableLeft = true;
 
@@ -78,7 +78,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 					}
 					else if (m_SpeedX > 0)
 					{
-						if (terrain->getPixel(m_RightBound, j) == SKY_COLOUR)
+						if (terrain->getPixel(m_RightBound, j) != GROUND_COLOUR)
 						{
 							walkableRight = true;
 						}
@@ -130,6 +130,36 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 					m_SpeedY = 0;
 				}
 				break;
+			}
+		
+			int redDown = terrain->getPixel(i, m_BottomBound).r;
+			int redUp = terrain->getPixel(i, m_TopBound).r;
+			if (redDown >= 100)
+			{
+				m_SpeedY = -200;
+				m_WalkingSpeed = 50 * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
+			}
+			if (redUp >= 100 && redUp > redDown)
+			{
+				m_SpeedY = 200;
+				m_WalkingSpeed = 50 * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
+			}
+		}
+
+		for (int i = m_TopBound; i <= m_BottomBound; ++i)
+		{
+
+			int redRight = terrain->getPixel(m_RightBound, i).r;
+			int redLeft = terrain->getPixel(m_LeftBound, i).r;
+			if (redRight >= 100)
+			{
+				m_SpeedX = -100;
+				m_WalkingSpeed = 50 * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
+			}
+			if (redLeft >= 100 && redLeft > redRight)
+			{
+				m_SpeedX = 100;
+				m_WalkingSpeed = 50 * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
 			}
 		}
 	}
@@ -183,4 +213,9 @@ void Character::Shoot()
 bool Character::IsInAir()
 {
 	return m_FallingTime > 0.5f;
+}
+
+bool Character::IsExplosion()
+{
+	return m_Projectiles.front()->IsExplosion();
 }
