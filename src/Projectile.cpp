@@ -27,6 +27,7 @@ Projectile::Projectile(const char * texturePath, int damage, int power) : Entity
 
 	m_pSprite->setTextureRect(sf::IntRect(m_pCurrentKeyFrame->x * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
 	m_pSprite->setPosition(*m_pStartPosition);
+	m_pSprite->setOrigin(7, 0);
 }
 
 Projectile::~Projectile()
@@ -245,13 +246,11 @@ void Projectile::Update(float dt, sf::RenderWindow * window)
 	{
 		m_pCurrentKeyFrame->y = 0;
 		m_pSprite->setRotation(angle);
-		m_pSprite->setOrigin(14, 0);
 	}
 	else
 	{
 		m_pCurrentKeyFrame->y = 1;
 		m_pSprite->setRotation(180 + angle);
-		m_pSprite->setOrigin(0, 0);
 	}
 	m_pSprite->setTextureRect(sf::IntRect(m_pCurrentKeyFrame->x * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
 
