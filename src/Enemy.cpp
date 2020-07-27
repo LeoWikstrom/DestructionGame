@@ -80,7 +80,7 @@ void Enemy::Update(float dt, sf::RenderWindow * window)
 
 	if (m_pSprite->getPosition().x <= -16 * SCALE)
 	{
-		m_pSprite->setPosition(Config::GetInstance().GetWindowSizeWidth(), m_pSprite->getPosition().y);
+		//m_pSprite->setPosition(Config::GetInstance().GetWindowSizeWidth(), m_pSprite->getPosition().y);
 	}
 	if (m_pSprite->getPosition().x >= Config::GetInstance().GetWindowSizeWidth() - 16 * SCALE && m_SpeedX > 0)
 	{
@@ -93,7 +93,7 @@ void Enemy::Update(float dt, sf::RenderWindow * window)
 
 	if (m_pWeaponSprite->getPosition().x <= -16 * SCALE)
 	{
-		m_pWeaponSprite->setPosition(Config::GetInstance().GetWindowSizeWidth(), m_pWeaponSprite->getPosition().y);
+		//m_pWeaponSprite->setPosition(Config::GetInstance().GetWindowSizeWidth(), m_pWeaponSprite->getPosition().y);
 	}
 
 	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 2 * SCALE;

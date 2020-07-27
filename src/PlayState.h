@@ -31,6 +31,8 @@ private:
 	bool m_WasRightPressed;
 	std::queue<Enemy*> m_Enemies;
 	float m_cameraOffset;
+	float m_nextTerrainUpdate;
+
 public:
 	PlayState(Game* game);
 	~PlayState();

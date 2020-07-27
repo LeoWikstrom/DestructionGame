@@ -204,14 +204,14 @@ void Player::Update(float dt, sf::RenderWindow * window)
 
 	if (m_pSprite->getPosition().x <= -16 * SCALE)
 	{
-		m_pSprite->setPosition(m_pSprite->getPosition().x + Config::GetInstance().GetWindowSizeWidth() + 32, m_pSprite->getPosition().y);
-		m_pWeaponSprite->setPosition(m_pWeaponSprite->getPosition().x + Config::GetInstance().GetWindowSizeWidth() + 32, m_pWeaponSprite->getPosition().y);
+		//m_pSprite->setPosition(m_pSprite->getPosition().x + Config::GetInstance().GetWindowSizeWidth() + 32, m_pSprite->getPosition().y);
+		//m_pWeaponSprite->setPosition(m_pWeaponSprite->getPosition().x + Config::GetInstance().GetWindowSizeWidth() + 32, m_pWeaponSprite->getPosition().y);
 	}
 	else if (m_pSprite->getPosition().x >= Config::GetInstance().GetWindowSizeWidth())
 	{
-		m_pSprite->setPosition(m_pSprite->getPosition().x - Config::GetInstance().GetWindowSizeWidth() - 32
-			, m_pSprite->getPosition().y);
-		m_pWeaponSprite->setPosition(m_pWeaponSprite->getPosition().x - Config::GetInstance().GetWindowSizeWidth() - 32, m_pWeaponSprite->getPosition().y);
+		//m_pSprite->setPosition(m_pSprite->getPosition().x - Config::GetInstance().GetWindowSizeWidth() - 32
+		//	, m_pSprite->getPosition().y);
+		//m_pWeaponSprite->setPosition(m_pWeaponSprite->getPosition().x - Config::GetInstance().GetWindowSizeWidth() - 32, m_pWeaponSprite->getPosition().y);
 	}
 
 	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 8 * SCALE;

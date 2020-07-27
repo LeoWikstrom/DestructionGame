@@ -5,8 +5,9 @@
 #include "Terrain.h"
 #include "Config.h"
 #include "Enemy.h"
+#include <iostream>
 
-PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), m_cameraOffset(0.f)
+PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), m_cameraOffset(0.f), m_nextTerrainUpdate(Config::GetInstance().GetWindowSizeWidth() / 2)
 {
 	m_pFont = new sf::Font();
 	char* winDir = getenv("WinDir"); //Get the window directory
@@ -28,7 +29,7 @@ PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), 
 
 	m_Enemies.push(new Enemy("..\\resources\\small_enemy.png", "..\\resources\\gun_small.png", 200, 5));
 
-	sf::Image terrain = m_pTerrain->GetTerrain();
+	//sf::Image terrain = m_pTerrain->GetTerrain();
 }
 
 PlayState::~PlayState()
@@ -192,12 +193,20 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 	m_Enemies.front()->CheckTerrainCollision(&m_pTerrain->GetTerrain());
 	m_Enemies.front()->Update(dt, window);
 
+	if (m_cameraOffset > m_nextTerrainUpdate)
+	{
+		m_nextTerrainUpdate += Config::GetInstance().GetWindowSizeWidth();
+		m_pTerrain->GenSecondTerrain(rand() % (Config::GetInstance().GetWindowSizeHeight() - 100) + 50, Config::GetInstance().GetWindowSizeHeight(), 0, 50, 4);
+		std::cout << "Generated second terrain, offset is: " << m_cameraOffset << std::endl;
+	}
+
 	// CameraControl
 	m_cameraOffset = m_pPlayer->GetPosition().x > m_cameraOffset ? m_pPlayer->GetPosition().x : m_cameraOffset;
 	
 	sf::View view = window->getView();
-	view.setViewport(sf::FloatRect((((window->getSize().x / 2) - (float)m_cameraOffset) / Config::GetInstance().GetWindowSizeWidth()), view.getViewport().top, view.getViewport().width, view.getViewport().height));
+	view.setCenter(m_cameraOffset, view.getCenter().y);
 	window->setView(view);
+
 }
 
 void PlayState::Render(sf::RenderWindow * window)
