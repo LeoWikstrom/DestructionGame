@@ -30,7 +30,7 @@ private:
 	bool m_WasDownPressed;
 	bool m_WasRightPressed;
 	std::queue<Enemy*> m_Enemies;
-
+	float m_cameraOffset;
 public:
 	PlayState(Game* game);
 	~PlayState();

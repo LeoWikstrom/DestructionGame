@@ -42,7 +42,7 @@ void RecursiveGenTerrainHelper(int startHeight, int endHeight, int maxHeight, in
 	}
 }
 
-void Terrain::GenerateTerrain(unsigned int startHeight, unsigned int endHeight, int maxHeight, int minHeight, unsigned int length, unsigned int maxDisplacement, unsigned int divisions)
+void Terrain::InitTerrain(unsigned int startHeight, unsigned int endHeight, int maxHeight, int minHeight, unsigned int length, unsigned int maxDisplacement, unsigned int divisions)
 {
 	//initialize midpoints
 	std::vector<int> midPoints;

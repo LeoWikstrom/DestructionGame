@@ -21,7 +21,7 @@ public:
 	Terrain();
 	~Terrain();
 
-	void GenerateTerrain(unsigned int startHeight, unsigned int endHeight, int maxHeight, int minHeight, unsigned int length, unsigned int maxDisplacement, unsigned int divisions);
+	void InitTerrain(unsigned int startHeight, unsigned int endHeight, int maxHeight, int minHeight, unsigned int length, unsigned int maxDisplacement, unsigned int divisions);
 	sf::Image& GetTerrain();
 	void DrawCircle(int x, int y, int radius);
 	void Update();

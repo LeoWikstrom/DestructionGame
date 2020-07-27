@@ -6,7 +6,7 @@
 #include "Config.h"
 #include "Enemy.h"
 
-PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain())
+PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), m_cameraOffset(0.f)
 {
 	m_pFont = new sf::Font();
 	char* winDir = getenv("WinDir"); //Get the window directory
@@ -14,7 +14,7 @@ PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain())
 
 	m_pPlayer = new Player("..\\resources\\player.png", "..\\resources\\gun_player.png");
 
-	m_pTerrain->GenerateTerrain(300, 300, Config::GetInstance().GetWindowSizeHeight(), 0, Config::GetInstance().GetWindowSizeWidth(), 50, 4);
+	m_pTerrain->InitTerrain(300, 300, Config::GetInstance().GetWindowSizeHeight(), 0, Config::GetInstance().GetWindowSizeWidth(), 50, 4);
 
 	m_WasSpacePressed = false;
 	m_WasWPressed = false;
@@ -191,6 +191,13 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 	m_Enemies.front()->CheckForPlayer(m_pPlayer->GetPosition().x, m_pPlayer->GetPosition().y);
 	m_Enemies.front()->CheckTerrainCollision(&m_pTerrain->GetTerrain());
 	m_Enemies.front()->Update(dt, window);
+
+	// CameraControl
+	m_cameraOffset = m_pPlayer->GetPosition().x > m_cameraOffset ? m_pPlayer->GetPosition().x : m_cameraOffset;
+	
+	sf::View view = window->getView();
+	view.setViewport(sf::FloatRect((((window->getSize().x / 2) - (float)m_cameraOffset) / Config::GetInstance().GetWindowSizeWidth()), view.getViewport().top, view.getViewport().width, view.getViewport().height));
+	window->setView(view);
 }
 
 void PlayState::Render(sf::RenderWindow * window)
