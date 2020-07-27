@@ -13,6 +13,7 @@ namespace sf
 	typedef Vector2<int> Vector2i;
 	typedef Vector2<float> Vector2f;
 	class Image;
+	class RectangleShape;
 }
 
 class Projectile;
@@ -28,7 +29,9 @@ protected:
 	int m_WalkingSpeed;
 	bool m_Falling;
 	bool m_Jumping;
+	bool m_Exploded;
 	float m_FallingTime;
+	int m_Weight;
 
 public:
 	Character(const char* texturePath, const char* weaponTexturePath);
@@ -41,6 +44,7 @@ public:
 	virtual void Shoot();
 	virtual bool IsInAir();
 	virtual bool IsExplosion();
+	virtual bool IsExploded();
 
 	virtual void Update(float dt, sf::RenderWindow* window) = 0;
 	virtual void Render(sf::RenderWindow* window) = 0;

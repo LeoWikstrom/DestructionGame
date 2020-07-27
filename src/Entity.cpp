@@ -6,10 +6,11 @@ Entity::Entity(const char * texturePath) : m_pTex(new sf::Texture), m_pSprite(ne
 {
 	m_pTex->loadFromFile(texturePath);
 	m_pSprite->setTexture(*m_pTex);
-	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 1;
-	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - 1;
-	m_TopBound = (int)m_pSprite->getGlobalBounds().top + 1;
-	m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pSprite->getGlobalBounds().height - 1;
+	m_pSprite->setScale(SCALE, SCALE);
+	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 1 * SCALE;
+	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - 1 * SCALE;
+	m_TopBound = (int)m_pSprite->getGlobalBounds().top + 1 * SCALE;
+	m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pSprite->getGlobalBounds().height - 1 * SCALE;
 }
 
 Entity::~Entity()

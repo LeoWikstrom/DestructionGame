@@ -9,6 +9,8 @@ The class is a singleton to access its values wherever in the code.
 #define GROUND_COLOUR sf::Color::Green
 #define SKY_COLOUR sf::Color::Cyan
 
+#define SCALE 2
+
 class Config {
 private:
 	//Init

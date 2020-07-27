@@ -2,6 +2,7 @@
 #include "Config.h"
 #include "Projectile.h"
 #include <SFML/Graphics.hpp>
+#include <algorithm>
 
 Character::Character(const char * texturePath, const char * weaponTexturePath) : Entity(texturePath), m_pWeaponTex(new sf::Texture), m_pWeaponSprite(new sf::Sprite)
 {
@@ -11,7 +12,11 @@ Character::Character(const char * texturePath, const char * weaponTexturePath) :
 	m_Falling = false;
 	m_FallingTime = 0;
 
-	m_Projectiles.push(new Projectile("..\\resources\\projectile.png", 50, 300));
+	m_Weight = 1;
+
+	m_Projectiles.push(new Projectile("..\\resources\\projectile.png", 50 * SCALE, 300 * SCALE));
+
+	m_Exploded = false;
 }
 
 Character::~Character()
@@ -29,9 +34,22 @@ void Character::Move(float dt)
 {
 	if (m_Falling)
 	{
-		m_SpeedY += 9.81 * 20 * dt;
+		m_SpeedY += 9.81 * 20 * SCALE * dt;
 		m_Jumping = false;
 		m_FallingTime += dt;
+	}
+
+	if (abs(m_SpeedX - m_WalkingSpeed) < 0.1)
+	{
+		m_SpeedX = m_WalkingSpeed;
+	}
+	else if (m_SpeedX < m_WalkingSpeed)
+	{
+		m_SpeedX += 50 * SCALE * dt;
+	}
+	else if (m_SpeedX > m_WalkingSpeed)
+	{
+		m_SpeedX -= 50 * SCALE * dt;
 	}
 	m_pSprite->move(m_SpeedX * dt, m_SpeedY * dt);
 	m_pWeaponSprite->move(m_SpeedX * dt, m_SpeedY * dt);
@@ -42,10 +60,13 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 	m_Falling = true;
 	if (m_BottomBound < Config::GetInstance().GetWindowSizeHeight())
 	{
+		int redDown = 0;
+		int redUp = 0;
 		for (int i = m_LeftBound; i <= m_RightBound; ++i)
 		{
 			if (terrain->getPixel(i, m_BottomBound) == GROUND_COLOUR)
 			{
+				m_Exploded = false;
 				if (m_SpeedY >= 0)
 				{
 					if (!m_Jumping)
@@ -54,13 +75,12 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 					}
 					m_Falling = false;
 					m_FallingTime = 0;
-					m_SpeedX = m_WalkingSpeed;
 				}
 
 				bool walkableRight = true, walkableLeft = true, fullStop = false;
 				int height = 0;
 
-				for (int j = m_BottomBound; j >= m_BottomBound - 3; --j)
+				for (int j = m_BottomBound; j >= m_BottomBound - 3 * SCALE; --j)
 				{
 					if (m_SpeedX < 0)
 					{
@@ -90,7 +110,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 					}
 				}
 
-				for (int j = m_BottomBound - 4; j >= m_TopBound; --j)
+				for (int j = m_BottomBound - 3 * SCALE - 1; j >= m_TopBound; --j)
 				{
 					if (m_SpeedX < 0)
 					{
@@ -116,9 +136,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 				}
 				else if ((!m_Jumping && !m_Falling) || (m_Jumping && IsInAir()) || (m_Falling && IsInAir()) || fullStop)
 				{
-					m_pSprite->move(((m_SpeedX < 0) * 2 - 1) * (m_SpeedX != 0), 0);
-					m_pWeaponSprite->move(((m_SpeedX < 0) * 2 - 1) * (m_SpeedX != 0), 0);
-					m_SpeedX = 0;
+					m_SpeedX *= -0.25;
 				}
 				break;
 			}
@@ -127,39 +145,67 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 			{
 				if (m_SpeedY < 0)
 				{
-					m_SpeedY = 0;
+					m_SpeedY *= -0.1;
 				}
+
 				break;
 			}
-		
-			int redDown = terrain->getPixel(i, m_BottomBound).r;
-			int redUp = terrain->getPixel(i, m_TopBound).r;
-			if (redDown >= 100)
+
+
+			redDown = std::max(redDown, (int)terrain->getPixel(i, m_BottomBound).r);
+			redUp = std::max(redUp, (int)terrain->getPixel(i, m_TopBound).r);
+			if (redDown >= 100 && redDown > redUp && (redDown / m_Weight) * SCALE > abs(m_SpeedY))
 			{
-				m_SpeedY = -200;
-				m_WalkingSpeed = 50 * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
+				m_SpeedY = -(redDown / m_Weight) * SCALE;
+				m_WalkingSpeed = 50 * SCALE * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
+				m_Exploded = true;
 			}
-			if (redUp >= 100 && redUp > redDown)
+			else if (redUp >= 100 && redUp > redDown && (redUp / m_Weight) * SCALE > abs(m_SpeedY))
 			{
-				m_SpeedY = 200;
-				m_WalkingSpeed = 50 * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
+				m_SpeedY = (redUp / m_Weight) * SCALE;
+				m_WalkingSpeed = 50 * SCALE * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
+				m_Exploded = true;
 			}
 		}
 
+		int redRight = 0;
+		int redLeft = 0;
 		for (int i = m_TopBound; i <= m_BottomBound; ++i)
 		{
-
-			int redRight = terrain->getPixel(m_RightBound, i).r;
-			int redLeft = terrain->getPixel(m_LeftBound, i).r;
-			if (redRight >= 100)
+			bool fullStop = false;
+			if (m_SpeedX < 0)
 			{
-				m_SpeedX = -100;
-				m_WalkingSpeed = 50 * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
+				if (terrain->getPixel(m_LeftBound, i) == GROUND_COLOUR)
+				{
+					fullStop = true;
+				}
 			}
-			if (redLeft >= 100 && redLeft > redRight)
+			else if (m_SpeedX > 0)
 			{
-				m_SpeedX = 100;
-				m_WalkingSpeed = 50 * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
+				if (terrain->getPixel(m_RightBound, i) == GROUND_COLOUR)
+				{
+					fullStop = true;
+				}
+			}
+
+			if (IsInAir() && fullStop)
+			{
+				m_SpeedX *= -0.25;
+			}
+
+			redRight = std::max(redRight, (int)terrain->getPixel(m_RightBound, i).r);
+			redLeft = std::max(redLeft, (int)terrain->getPixel(m_LeftBound, i).r);
+			if (redRight >= 100 && redRight > redLeft && (redRight / m_Weight) * SCALE > abs(m_SpeedX))
+			{
+				m_SpeedX = -(redRight / m_Weight) * SCALE;
+				m_WalkingSpeed = 50 * SCALE * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
+				m_Exploded = true;
+			}
+			else if (redLeft >= 100 && redLeft > redRight && (redLeft / m_Weight) * SCALE > abs(m_SpeedX))
+			{
+				m_SpeedX = (redLeft / m_Weight) * SCALE;
+				m_WalkingSpeed = 50 * SCALE * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
+				m_Exploded = true;
 			}
 		}
 	}
@@ -218,4 +264,9 @@ bool Character::IsInAir()
 bool Character::IsExplosion()
 {
 	return m_Projectiles.front()->IsExplosion();
+}
+
+bool Character::IsExploded()
+{
+	return m_Exploded;
 }

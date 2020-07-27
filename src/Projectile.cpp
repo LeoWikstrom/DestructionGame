@@ -20,14 +20,14 @@ Projectile::Projectile(const char * texturePath, int damage, int power) : Entity
 	m_AnimationStart = 0;
 	m_pCurrentKeyFrame->x = m_AnimationStart;
 	m_pCurrentKeyFrame->y = 0;
-	m_pStartPosition->x = 100;
-	m_pStartPosition->y = 200;
+	m_pStartPosition->x = 100 * SCALE;
+	m_pStartPosition->y = 200 * SCALE;
 	m_AnimationSpeed = 0.15f;
 	m_KeyFrameDuration = 0.15f;
 
 	m_pSprite->setTextureRect(sf::IntRect(m_pCurrentKeyFrame->x * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
 	m_pSprite->setPosition(*m_pStartPosition);
-	m_pSprite->setOrigin(7, 0);
+	m_pSprite->setOrigin(m_pKeyFrameSize->x / 2, 0);
 }
 
 Projectile::~Projectile()
@@ -58,10 +58,10 @@ void Projectile::Shoot()
 		m_SpeedX = m_Direction * m_Power * cos(m_pSprite->getRotation() * 3.141592654f / 180);
 		m_SpeedY = m_Direction * m_Power * sin(m_pSprite->getRotation() * 3.141592654f / 180);
 
-		m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 2;
-		m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pKeyFrameSize->x - 2;
-		m_TopBound = (int)m_pSprite->getGlobalBounds().top + 2;
-		m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pKeyFrameSize->y - 2;
+		m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 2 * SCALE;
+		m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pKeyFrameSize->x * SCALE - 2 * SCALE;
+		m_TopBound = (int)m_pSprite->getGlobalBounds().top + 2 * SCALE;
+		m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pKeyFrameSize->y * SCALE - 2 * SCALE;
 	}
 }
 
@@ -85,15 +85,27 @@ void Projectile::UpdateExplosion(float dt)
 
 		for (int i = 0; i < m_Explosions.size(); ++i)
 		{
-			sf::CircleShape explosion(m_Damage);
-			explosion.setPointCount(40);
-			explosion.setOrigin(m_Damage, m_Damage);
-			explosion.setPosition(*m_Explosions[i]);
-			explosion.setFillColor(sf::Color(0, 255, 255, 2500*dt));
-			renderTex.draw(explosion);
-			int pointCount = explosion.getPointCount();
 			int height = Config::GetInstance().GetWindowSizeHeight(),
 				width = Config::GetInstance().GetWindowSizeWidth();
+			sf::Color colourCenter;
+			if (m_Explosions[i]->y >= 0 && m_Explosions[i]->y < height)
+			{
+				colourCenter = m_pTerrainImage->getPixel(m_Explosions[i]->x, m_Explosions[i]->y);
+			}
+			sf::CircleShape explosion(m_Damage);
+			explosion.setFillColor(sf::Color(0, 255, 255, 2500*dt));
+			explosion.setOrigin(m_Damage, m_Damage);
+			if (colourCenter.r == 255)
+			{
+				explosion.setRadius(5);
+				explosion.setFillColor(sf::Color(254, 0, 0));
+				explosion.setOrigin(5, 5);
+			}
+
+			explosion.setPointCount(40);
+			explosion.setPosition(*m_Explosions[i]);
+			renderTex.draw(explosion);
+			int pointCount = explosion.getPointCount();
 			float	circleUp = m_Explosions[i]->y - (m_Damage - 1),
 					circleRight = m_Explosions[i]->x + (m_Damage - 1),
 					circleDown = m_Explosions[i]->y + (m_Damage - 1),
@@ -118,11 +130,6 @@ void Projectile::UpdateExplosion(float dt)
 			{
 				colourLeft = m_pTerrainImage->getPixel(circleLeft, m_Explosions[i]->y);
 			}
-			sf::Color colourCenter;
-			if (m_Explosions[i]->y >= 0 && m_Explosions[i]->y < height)
-			{
-				colourCenter = m_pTerrainImage->getPixel(m_Explosions[i]->x, m_Explosions[i]->y);
-			}
 
 			if ((colourUp.g >= 250 || colourUp.a == 0) && (colourRight.g >= 250 || colourRight.a == 0) && (colourDown.g >= 250 || colourDown.a == 0) && (colourLeft.g >= 250 ||colourLeft.a == 0) && (colourCenter.g >= 250 || colourCenter.a == 0))
 			{
@@ -136,10 +143,13 @@ void Projectile::UpdateExplosion(float dt)
 				m_Explosions.erase(m_Explosions.begin() + i);
 				i = -1;
 			}
+
+			//printf("colourUp %d\ncolourRight %d\ncolourDown %d\ncolourLeft %d\ncolourCenter %d\ncolourExplosion %d\n\n", colourUp.r, colourRight.r, colourDown.r, colourLeft.r, colourCenter.r, explosion.getFillColor().r);
 		}
 		renderTex.display();
 
 		*m_pTerrainImage = renderTex.getTexture().copyToImage();
+
 	}
 }
 
@@ -150,7 +160,7 @@ bool Projectile::IsExplosion()
 
 void Projectile::Move(float dt)
 {
-	m_SpeedY += 9.81 * 20 * dt;
+	m_SpeedY += 9.81 * 20 * SCALE * dt;
 	Entity::Move(dt);
 }
 
@@ -167,7 +177,7 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 				m_Shooting = false;
 				m_Explosions.push_back(new sf::Vector2f(m_pSprite->getPosition()));
 
-				sf::CircleShape explosions[10];
+				sf::CircleShape explosions;
 				sf::RenderTexture renderTex;
 				sf::Texture texture;
 				sf::Sprite sprite;
@@ -177,15 +187,16 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 				renderTex.create(Config::GetInstance().GetWindowSizeWidth(), Config::GetInstance().GetWindowSizeHeight());
 				renderTex.clear();
 				renderTex.draw(sprite);
-				int radDecrease = m_Damage / 10 - 1;
+				int radDecrease = m_Damage / 10;
 				for (int i = 0; i < 10; ++i)
 				{
-					explosions[i] = sf::CircleShape(m_Damage - 5 * i);
-					explosions[i].setFillColor(sf::Color(210 + 5 * i, 0, 0));
-					explosions[i].setOrigin(m_Damage - 5 * i, m_Damage - 5 * i);
-					explosions[i].setPosition(m_pSprite->getPosition());
-					explosions[i].setPointCount(40);
-					renderTex.draw(explosions[i]);
+					explosions = sf::CircleShape();
+					explosions.setRadius(m_Damage - radDecrease * i);
+					explosions.setFillColor(sf::Color(165 + 10 * i, 0, 0));
+					explosions.setOrigin(m_Damage - radDecrease * i, m_Damage - radDecrease * i);
+					explosions.setPosition(m_pSprite->getPosition());
+					explosions.setPointCount(40);
+					renderTex.draw(explosions);
 				}
 
 				renderTex.display();
@@ -202,7 +213,7 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 				m_Shooting = false;
 				m_Explosions.push_back(new sf::Vector2f(m_pSprite->getPosition()));
 
-				sf::CircleShape explosions[10];
+				sf::CircleShape explosions;
 				sf::RenderTexture renderTex;
 				sf::Texture texture;
 				sf::Sprite sprite;
@@ -212,15 +223,15 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 				renderTex.create(Config::GetInstance().GetWindowSizeWidth(), Config::GetInstance().GetWindowSizeHeight());
 				renderTex.clear();
 				renderTex.draw(sprite);
-				int radDecrease = m_Damage / 10 - 1;
+				int radDecrease = m_Damage / 10;
 				for (int i = 0; i < 10; ++i)
 				{
-					explosions[i] = sf::CircleShape(m_Damage - 5 * i);
-					explosions[i].setFillColor(sf::Color(210 + 5 * i, 0, 0));
-					explosions[i].setOrigin(m_Damage - 5 * i, m_Damage - 5 * i);
-					explosions[i].setPosition(m_pSprite->getPosition());
-					explosions[i].setPointCount(40);
-					renderTex.draw(explosions[i]);
+					explosions.setRadius(m_Damage - radDecrease * i);
+					explosions.setFillColor(sf::Color(165 + 10 * i, 0, 0));
+					explosions.setOrigin(m_Damage - radDecrease * i, m_Damage - radDecrease * i);
+					explosions.setPosition(m_pSprite->getPosition());
+					explosions.setPointCount(40);
+					renderTex.draw(explosions);
 				}
 
 				renderTex.display();
@@ -268,10 +279,10 @@ void Projectile::Update(float dt, sf::RenderWindow * window)
 		m_Shooting = false;
 	}
 
-	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 2;
-	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pKeyFrameSize->x - 2;
-	m_TopBound = (int)m_pSprite->getGlobalBounds().top + 2;
-	m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pKeyFrameSize->y - 2;
+	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 2 * SCALE;
+	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pKeyFrameSize->x * SCALE - 2 * SCALE;
+	m_TopBound = (int)m_pSprite->getGlobalBounds().top + 2 * SCALE;
+	m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pKeyFrameSize->y * SCALE - 2 * SCALE;
 }
 
 void Projectile::Render(sf::RenderWindow * window)

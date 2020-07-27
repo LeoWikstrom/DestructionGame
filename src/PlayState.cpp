@@ -14,7 +14,7 @@ PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain())
 
 	m_pPlayer = new Player("..\\resources\\player.png", "..\\resources\\gun_player.png");
 
-	m_pTerrain->GenerateTerrain(300, 300, Config::GetInstance().GetWindowSizeHeight(), 0, Config::GetInstance().GetWindowSizeWidth(), 50, 4);
+	m_pTerrain->GenerateTerrain(200 * SCALE, 200 * SCALE, Config::GetInstance().GetWindowSizeHeight(), 0, Config::GetInstance().GetWindowSizeWidth(), 50 * SCALE, 4);
 
 	m_WasSpacePressed = false;
 	m_WasWPressed = false;
@@ -76,12 +76,12 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 		{
 			m_WasWPressed = false;
 		}
-		if (isAPressed && !m_WasAPressed)
+		if (isAPressed && !m_WasAPressed && !m_pPlayer->IsExploded())
 		{
-			m_pPlayer->SetWalkingSpeed(-50 + 20 * m_pPlayer->IsWeaponOut());
+			m_pPlayer->SetWalkingSpeed(-50 * SCALE + 20 * SCALE * m_pPlayer->IsWeaponOut());
 			m_WasAPressed = true;
 		}
-		else if (!isAPressed && m_WasAPressed)
+		else if (!isAPressed && m_WasAPressed && !m_pPlayer->IsExploded())
 		{
 			m_pPlayer->SetWalkingSpeed(0);
 			m_WasAPressed = false;
@@ -95,12 +95,12 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 		{
 			m_WasSPressed = false;
 		}
-		if (isDPressed && !m_WasDPressed)
+		if (isDPressed && !m_WasDPressed && !m_pPlayer->IsExploded())
 		{
-			m_pPlayer->SetWalkingSpeed(50 - 20 * m_pPlayer->IsWeaponOut());
+			m_pPlayer->SetWalkingSpeed(50 * SCALE - 20 * SCALE * m_pPlayer->IsWeaponOut());
 			m_WasDPressed = true;
 		}
-		else if (!isDPressed && m_WasDPressed)
+		else if (!isDPressed && m_WasDPressed && !m_pPlayer->IsExploded())
 		{
 			m_pPlayer->SetWalkingSpeed(0);
 			m_WasDPressed = false;
@@ -122,13 +122,13 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 			m_pPlayer->ShowWeapon(true);
 			m_WasRightPressed = true;
 
-			if (isDPressed)
+			if (isDPressed && !m_pPlayer->IsExploded())
 			{
-				m_pPlayer->SetWalkingSpeed(50 - 20 * m_pPlayer->IsWeaponOut());
+				m_pPlayer->SetWalkingSpeed(50 * SCALE - 20 * SCALE * m_pPlayer->IsWeaponOut());
 			}
-			else if (isAPressed)
+			else if (isAPressed && !m_pPlayer->IsExploded())
 			{
-				m_pPlayer->SetWalkingSpeed(-50 + 20 * m_pPlayer->IsWeaponOut());
+				m_pPlayer->SetWalkingSpeed(-50 * SCALE + 20 * SCALE * m_pPlayer->IsWeaponOut());
 			}
 		}
 		else if (!isRightPressed && m_WasRightPressed)
@@ -140,13 +140,13 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 			m_pPlayer->ShowWeapon(false);
 			m_WasLeftPressed = true;
 
-			if (isDPressed)
+			if (isDPressed && !m_pPlayer->IsExploded())
 			{
-				m_pPlayer->SetWalkingSpeed(50 - 20 * m_pPlayer->IsWeaponOut());
+				m_pPlayer->SetWalkingSpeed(50 * SCALE - 20 * SCALE * m_pPlayer->IsWeaponOut());
 			}
-			else if (isAPressed)
+			else if (isAPressed && !m_pPlayer->IsExploded())
 			{
-				m_pPlayer->SetWalkingSpeed(-50 + 20 * m_pPlayer->IsWeaponOut());
+				m_pPlayer->SetWalkingSpeed(-50 * SCALE + 20 * SCALE * m_pPlayer->IsWeaponOut());
 			}
 		}
 		else if (!isLeftPressed && m_WasLeftPressed)

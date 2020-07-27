@@ -46,10 +46,10 @@ int Config::GetVariableID(std::string str)
 
 int Config::GetWindowSizeWidth()
 {
-	return m_WindowWidth;
+	return m_WindowWidth * SCALE;
 }
 
 int Config::GetWindowSizeHeight()
 {
-	return m_WindowHeight;
+	return m_WindowHeight * SCALE;
 }

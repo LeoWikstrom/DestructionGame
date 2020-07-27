@@ -9,6 +9,7 @@ private:
 	sf::Texture* m_pCoverTex;
 
 	bool m_ShowWeapon;
+	bool m_IsHurt;
 public:
 	Player(const char* texturePath, const char* weaponTexturePath);
 	~Player();

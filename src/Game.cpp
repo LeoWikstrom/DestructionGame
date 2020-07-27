@@ -17,6 +17,7 @@ Game::Game()
 	sf::Image icon;
 	icon.loadFromFile("..\\resources\\player_icon.png");
 	m_pWindow->setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+	m_pWindow->setPosition(sf::Vector2i(400 / SCALE, 0));
 }
 
 Game::~Game()
