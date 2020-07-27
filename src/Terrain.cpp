@@ -107,11 +107,7 @@ void Terrain::GenSecondTerrain(unsigned int endHeight, int maxHeight, int minHei
 	if (m_pSecImage != nullptr)
 	{
 		lastImageLength = m_pImage->getSize().x;
-		sf::Image* toUpdate = nullptr;
-
-		toUpdate = m_pImage;
-		m_pImage = m_pSecImage;
-		m_pSecImage = toUpdate;
+		m_pImage->copy(*m_pMainImage, 0, 0, sf::IntRect(lastImageLength, 0, m_pImage->getSize().x, m_pImage->getSize().y));
 	}
 	else
 	{
