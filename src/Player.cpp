@@ -13,7 +13,7 @@ Player::Player(const char* texturePath, const char* weaponTexturePath) : Charact
 	m_BaseKeyFrame = 0;
 	m_AnimationLength = 4;
 	m_AnimationStart = 0;
-	m_pCurrentKeyFrame->x = m_AnimationStart;
+	m_pCurrentKeyFrame->x = 5;
 	m_pCurrentKeyFrame->y = 0;
 	m_pStartPosition->x = Config::GetInstance().GetWindowSizeWidth() / 2;
 	m_pStartPosition->y = 200 * SCALE;
@@ -185,7 +185,7 @@ void Player::Update(float dt, sf::RenderWindow * window)
 	{
 		m_pSprite->setTextureRect(sf::IntRect(6 * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
 	}
-	else if (m_SpeedY == 0)
+	else if (m_SpeedY == 0 && m_pCurrentKeyFrame->x != 5)
 	{
 		m_pCurrentKeyFrame->x = m_BaseKeyFrame;
 		m_pSprite->setTextureRect(sf::IntRect(m_pCurrentKeyFrame->x * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
@@ -194,7 +194,7 @@ void Player::Update(float dt, sf::RenderWindow * window)
 
 		m_KeyFrameDuration = 0.15f;
 	}
-	else
+	else if (m_pCurrentKeyFrame->x != 5)
 	{
 		m_pSprite->setTextureRect(sf::IntRect(4 * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
 		m_pWeaponSprite->setTextureRect(sf::IntRect(0 * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));

@@ -136,7 +136,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 				}
 				else if ((!m_Jumping && !m_Falling) || (m_Jumping && IsInAir()) || (m_Falling && IsInAir()) || fullStop)
 				{
-					m_SpeedX *= -0.25;
+					m_SpeedX *= -0.25 * SCALE;
 				}
 				break;
 			}
