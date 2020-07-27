@@ -13,9 +13,11 @@ Game::Game()
 {
 	m_pWindow = new sf::RenderWindow(sf::VideoMode(Config::GetInstance().GetWindowSizeWidth(), Config::GetInstance().GetWindowSizeHeight()), "Destruction Game");
 	m_pState = new PlayState(this);
+
 	sf::Image icon;
 	icon.loadFromFile("..\\resources\\player_icon.png");
 	m_pWindow->setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+	m_pWindow->setPosition(sf::Vector2i(400 / SCALE, 0));
 }
 
 Game::~Game()
@@ -31,6 +33,11 @@ void Game::Run()
 	{
 		m_pState->Update(clock.restart().asSeconds(), m_pWindow);
 		m_pState->Render(m_pWindow);
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		{
+			m_pWindow->close();
+		}
 	}
 
 	while (m_pState)

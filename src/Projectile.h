@@ -1,6 +1,7 @@
 #ifndef PROJECTILE_H
 #define PROJECTILE_H
 #include "Entity.h"
+#include <vector>
 
 namespace sf
 {
@@ -21,6 +22,8 @@ protected:
 	int m_Power;
 	int m_Direction;
 	bool m_Shooting;
+	std::vector<sf::Vector2f*> m_Explosions;
+	sf::Image* m_pTerrainImage;
 
 public:
 	Projectile(const char* texturePath, int damage, int power);
@@ -30,6 +33,8 @@ public:
 	void SetDirection(int direction);
 	void Shoot();
 	bool IsShooting();
+	void UpdateExplosion(float dt);
+	bool IsExplosion();
 	virtual void Move(float dt);
 	virtual bool CheckTerrainCollision(sf::Image* terrain);
 	virtual void Update(float dt, sf::RenderWindow* window);
