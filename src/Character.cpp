@@ -53,6 +53,13 @@ void Character::Move(float dt)
 	}
 	m_pSprite->move(m_SpeedX * dt, m_SpeedY * dt);
 	m_pWeaponSprite->move(m_SpeedX * dt, m_SpeedY * dt);
+	UpdateBounds();
+
+	//if (abs(m_SpeedX) > 0)
+	//{
+	//	printf("Player position: %f, %f\n", m_pSprite->getPosition().x, m_pSprite->getPosition().y);
+	//}
+	//	printf("BoundsX: %d, %d\n", m_LeftBound, m_RightBound);
 }
 
 bool Character::CheckTerrainCollision(sf::Image * terrain)
@@ -80,7 +87,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 				bool walkableRight = true, walkableLeft = true, fullStop = false;
 				int height = 0;
 
-				for (int j = m_BottomBound; j >= m_BottomBound - 3 * SCALE; --j)
+				for (int j = m_BottomBound; j >= m_BottomBound - 5 * SCALE; --j)
 				{
 					if (m_SpeedX < 0)
 					{
@@ -110,7 +117,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 					}
 				}
 
-				for (int j = m_BottomBound - 3 * SCALE - 1; j >= m_TopBound; --j)
+				for (int j = m_BottomBound - 5 * SCALE - 1; j >= m_TopBound; --j)
 				{
 					if (m_SpeedX < 0)
 					{
@@ -134,7 +141,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 				{
 					m_SpeedY = -20 * height;
 				}
-				else if ((!m_Jumping && !m_Falling) || (m_Jumping && IsInAir()) || (m_Falling && IsInAir()) || fullStop)
+				else if (m_SpeedX != 0 && ((!m_Jumping && !m_Falling) || (m_Jumping && IsInAir()) || (m_Falling && IsInAir()) || fullStop))
 				{
 					m_SpeedX *= -0.25 * SCALE;
 				}
@@ -269,4 +276,10 @@ bool Character::IsExplosion()
 bool Character::IsExploded()
 {
 	return m_Exploded;
+}
+
+void Character::OffsetBounds()
+{
+	m_Projectiles.front()->OffsetBounds();
+	Entity::OffsetBounds();
 }

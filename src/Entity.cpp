@@ -7,10 +7,12 @@ Entity::Entity(const char * texturePath) : m_pTex(new sf::Texture), m_pSprite(ne
 	m_pTex->loadFromFile(texturePath);
 	m_pSprite->setTexture(*m_pTex);
 	m_pSprite->setScale(SCALE, SCALE);
-	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 1 * SCALE;
-	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - 1 * SCALE;
-	m_TopBound = (int)m_pSprite->getGlobalBounds().top + 1 * SCALE;
-	m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pSprite->getGlobalBounds().height - 1 * SCALE;
+	m_BoundOffsetX = 1;
+	m_BoundOffsetY = 1;
+	m_OffsetBounds = 0;
+	m_IsOffset = false;
+
+	UpdateBounds();
 }
 
 Entity::~Entity()
@@ -26,6 +28,7 @@ Entity::~Entity()
 void Entity::Move(float dt)
 {
 	m_pSprite->move(m_SpeedX * dt, m_SpeedY * dt);
+	UpdateBounds();
 }
 
 bool Entity::CheckTerrainCollision(sf::Image * terrain)
@@ -41,10 +44,26 @@ const sf::Vector2f Entity::GetPosition()
 void Entity::SetPosition(int x, int y)
 {
 	m_pSprite->setPosition(x, y);
+	UpdateBounds();
 }
 
 void Entity::SetPosition(sf::Vector2f position)
 {
 	m_pSprite->setPosition(position);
+	UpdateBounds();
+}
+
+void Entity::UpdateBounds()
+{
+	m_LeftBound = ((int)m_pSprite->getGlobalBounds().left + m_BoundOffsetX * SCALE + m_OffsetBounds);// % (Config::GetInstance().GetWindowSizeWidth() * 2);
+	m_RightBound = ((int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - m_BoundOffsetX * SCALE + m_OffsetBounds);// % (Config::GetInstance().GetWindowSizeWidth() * 2);
+	m_TopBound = (int)m_pSprite->getGlobalBounds().top + m_BoundOffsetY * SCALE;
+	m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pSprite->getGlobalBounds().height - m_BoundOffsetY * SCALE;
+}
+
+void Entity::OffsetBounds()
+{
+	m_OffsetBounds -= Config::GetInstance().GetWindowSizeWidth();
+	UpdateBounds();
 }
 

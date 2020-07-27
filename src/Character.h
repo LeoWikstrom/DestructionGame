@@ -45,6 +45,7 @@ public:
 	virtual bool IsInAir();
 	virtual bool IsExplosion();
 	virtual bool IsExploded();
+	virtual void OffsetBounds();
 
 	virtual void Update(float dt, sf::RenderWindow* window) = 0;
 	virtual void Render(sf::RenderWindow* window) = 0;

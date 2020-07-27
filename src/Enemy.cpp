@@ -1,4 +1,5 @@
 #include "Enemy.h"
+#include "Projectile.h"
 #include "Config.h"
 #include <SFML/Graphics.hpp>
 #include <stdio.h>
@@ -14,13 +15,15 @@ Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, int detecti
 	m_AnimationLength = 4;
 	m_pCurrentKeyFrame->x = m_AnimationStart;
 	m_pCurrentKeyFrame->y = 0;
-	m_pStartPosition->x = 400 * SCALE;
+	m_pStartPosition->x = Config::GetInstance().GetWindowSizeWidth() - 16;
 	m_pStartPosition->y = 200 * SCALE;
 	m_AnimationSpeed = 0.15f;
 	m_KeyFrameDuration = 0.f;
+	m_BoundOffsetX = 2;
+	m_BoundOffsetY = 1;
 
 	m_pSprite->setTextureRect(sf::IntRect(m_AnimationStart, 0, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
-	m_pSprite->setPosition(*m_pStartPosition);
+	SetPosition(*m_pStartPosition);
 	m_pSprite->setScale(SCALE, SCALE);
 
 	m_WalkingSpeed = -20 * SCALE;
@@ -36,7 +39,12 @@ Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, int detecti
 	m_pWeaponSprite->setScale(SCALE, SCALE);
 	m_WeaponAngle = 0;
 
+	m_Projectiles.front()->SetDirection(-1);
+
 	m_Jumping = false;
+
+
+	UpdateBounds();
 }
 
 Enemy::~Enemy()
@@ -59,12 +67,28 @@ void Enemy::CheckForPlayer(int playerX, int playerY)
 void Enemy::AimForPlayer(int playerX, int playerY)
 {
 	m_pSprite->setTextureRect(sf::IntRect(2 * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
-	
+	if (!IsInAir() && !m_Projectiles.front()->IsShooting())
+	{
+		//Shoot();
+	}
 }
 
 void Enemy::Update(float dt, sf::RenderWindow * window)
 {
 	Move(dt);
+
+	if (!m_Projectiles.front()->IsShooting())
+	{
+		m_Projectiles.front()->SetPosition(m_pWeaponSprite->getPosition().x, m_pWeaponSprite->getPosition().y - 5 * SCALE);
+	}
+	else
+	{
+		m_Projectiles.front()->Update(dt, window);
+	}
+	if (m_Projectiles.front()->IsExplosion())
+	{
+		m_Projectiles.front()->UpdateExplosion(dt);
+	}
 
 	if ((m_SpeedX != 0 || m_SpeedY == 0) && m_WalkingSpeed != 0)
 	{
@@ -96,14 +120,12 @@ void Enemy::Update(float dt, sf::RenderWindow * window)
 		//m_pWeaponSprite->setPosition(Config::GetInstance().GetWindowSizeWidth(), m_pWeaponSprite->getPosition().y);
 	}
 
-	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 2 * SCALE;
-	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - 2 * SCALE;
-	m_TopBound = (int)m_pSprite->getGlobalBounds().top + 1 * SCALE;
-	m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pSprite->getGlobalBounds().height - 1 * SCALE;
+	UpdateBounds();
 }
 
 void Enemy::Render(sf::RenderWindow * window)
 {
+	m_Projectiles.front()->Render(window);
 	if (m_WalkingSpeed == 0)
 	{
 		window->draw(*m_pWeaponSprite);

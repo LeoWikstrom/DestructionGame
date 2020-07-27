@@ -34,6 +34,10 @@ protected:
 	int m_RightBound;
 	int m_TopBound;
 	int m_BottomBound;
+	int m_BoundOffsetX;
+	int m_BoundOffsetY;
+	int m_OffsetBounds;
+	bool m_IsOffset;
 
 public:
 	Entity(const char* texturePath);
@@ -44,6 +48,8 @@ public:
 	virtual const sf::Vector2f GetPosition();
 	virtual void SetPosition(int x, int y);
 	virtual void SetPosition(sf::Vector2f position);
+	virtual void UpdateBounds();
+	virtual void OffsetBounds();
 
 	virtual void Update(float dt, sf::RenderWindow* window) = 0;
 	virtual void Render(sf::RenderWindow* window) = 0;

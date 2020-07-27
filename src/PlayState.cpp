@@ -7,7 +7,7 @@
 #include "Enemy.h"
 #include <iostream>
 
-PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), m_cameraOffset(0.f), m_nextTerrainUpdate(Config::GetInstance().GetWindowSizeWidth() / 2)
+PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), m_CameraOffset(0.f), m_nextTerrainUpdate(Config::GetInstance().GetWindowSizeWidth() * 3 / 2)
 {
 	m_pFont = new sf::Font();
 	char* winDir = getenv("WinDir"); //Get the window directory
@@ -16,6 +16,8 @@ PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), 
 	m_pPlayer = new Player("..\\resources\\player.png", "..\\resources\\gun_player.png");
 
 	m_pTerrain->InitTerrain(200 * SCALE, 200 * SCALE, Config::GetInstance().GetWindowSizeHeight(), 0, Config::GetInstance().GetWindowSizeWidth(), 50 * SCALE, 4);
+	m_pTerrain->GenSecondTerrain(rand() % (Config::GetInstance().GetWindowSizeHeight() - 100) + 50, Config::GetInstance().GetWindowSizeHeight(), 0, 50, 4);
+	std::cout << "Generated second terrain, offset is: " << m_CameraOffset << std::endl;
 
 	m_WasSpacePressed = false;
 	m_WasWPressed = false;
@@ -183,28 +185,29 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 		}
 	}
 
-	if (m_pPlayer->CheckTerrainCollision(&m_pTerrain->GetTerrain()) || m_pPlayer->IsExplosion())
+	if (m_pPlayer->CheckTerrainCollision(&m_pTerrain->GetTerrain()) || m_pPlayer->IsExplosion() || m_Enemies.front()->CheckTerrainCollision(&m_pTerrain->GetTerrain()) || m_Enemies.front()->IsExplosion())
 	{
 		m_pTerrain->Update();
 	}
 	m_pPlayer->Update(dt, window);
-	
-	m_Enemies.front()->CheckForPlayer(m_pPlayer->GetPosition().x, m_pPlayer->GetPosition().y);
-	m_Enemies.front()->CheckTerrainCollision(&m_pTerrain->GetTerrain());
+	/*
 	m_Enemies.front()->Update(dt, window);
+	m_Enemies.front()->CheckForPlayer(m_pPlayer->GetPosition().x, m_pPlayer->GetPosition().y);
+	m_Enemies.front()->CheckTerrainCollision(&m_pTerrain->GetTerrain());*/
 
-	if (m_cameraOffset > m_nextTerrainUpdate)
+	if (m_CameraOffset > m_nextTerrainUpdate)
 	{
 		m_nextTerrainUpdate += Config::GetInstance().GetWindowSizeWidth();
 		m_pTerrain->GenSecondTerrain(rand() % (Config::GetInstance().GetWindowSizeHeight() - 100) + 50, Config::GetInstance().GetWindowSizeHeight(), 0, 50, 4);
-		std::cout << "Generated second terrain, offset is: " << m_cameraOffset << std::endl;
+		m_pPlayer->OffsetBounds();
+		std::cout << "Generated second terrain, offset is: " << m_CameraOffset << std::endl;
 	}
 
 	// CameraControl
-	m_cameraOffset = m_pPlayer->GetPosition().x > m_cameraOffset ? m_pPlayer->GetPosition().x : m_cameraOffset;
+	m_CameraOffset = m_pPlayer->GetPosition().x > m_CameraOffset ? m_pPlayer->GetPosition().x : m_CameraOffset;
 	
 	sf::View view = window->getView();
-	view.setCenter(m_cameraOffset, view.getCenter().y);
+	view.setCenter(m_CameraOffset, view.getCenter().y);
 	window->setView(view);
 
 }

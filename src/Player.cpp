@@ -20,8 +20,11 @@ Player::Player(const char* texturePath, const char* weaponTexturePath) : Charact
 	m_AnimationSpeed = 0.15f;
 	m_KeyFrameDuration = 0.15f;
 
+	m_BoundOffsetX = 8;
+	m_BoundOffsetY = 1;
+
 	m_pSprite->setTextureRect(sf::IntRect(m_pCurrentKeyFrame->x * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
-	m_pSprite->setPosition(*m_pStartPosition);
+	SetPosition(*m_pStartPosition);
 
 	m_WalkingSpeed = 0;
 	m_SpeedX = 0;
@@ -42,10 +45,7 @@ Player::Player(const char* texturePath, const char* weaponTexturePath) : Charact
 
 	m_Jumping = false;
 
-	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 8 * SCALE;
-	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - 8 * SCALE;
-	m_TopBound = (int)m_pSprite->getGlobalBounds().top + 1 * SCALE;
-	m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pSprite->getGlobalBounds().height - 1 * SCALE;
+	UpdateBounds();
 
 	m_Weight = 2;
 
@@ -201,23 +201,16 @@ void Player::Update(float dt, sf::RenderWindow * window)
 		m_pCoverSprite->setTextureRect(sf::IntRect(0 * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
 	}
 
-
-	if (m_pSprite->getPosition().x <= -16 * SCALE)
+	if (m_LeftBound < 0)
 	{
-		//m_pSprite->setPosition(m_pSprite->getPosition().x + Config::GetInstance().GetWindowSizeWidth() + 32, m_pSprite->getPosition().y);
-		//m_pWeaponSprite->setPosition(m_pWeaponSprite->getPosition().x + Config::GetInstance().GetWindowSizeWidth() + 32, m_pWeaponSprite->getPosition().y);
+		m_SpeedX *= -0.25 * SCALE;
+		Move(dt);
+		if (abs(m_WalkingSpeed) > 0)
+		{
+			m_pSprite->move(20 * dt, 0);
+			UpdateBounds();
+		}
 	}
-	else if (m_pSprite->getPosition().x >= Config::GetInstance().GetWindowSizeWidth())
-	{
-		//m_pSprite->setPosition(m_pSprite->getPosition().x - Config::GetInstance().GetWindowSizeWidth() - 32
-		//	, m_pSprite->getPosition().y);
-		//m_pWeaponSprite->setPosition(m_pWeaponSprite->getPosition().x - Config::GetInstance().GetWindowSizeWidth() - 32, m_pWeaponSprite->getPosition().y);
-	}
-
-	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 8 * SCALE;
-	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - 8 * SCALE;
-	m_TopBound = (int)m_pSprite->getGlobalBounds().top + 1 * SCALE;
-	m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pSprite->getGlobalBounds().height - 1 * SCALE;
 }
 
 void Player::Render(sf::RenderWindow * window)

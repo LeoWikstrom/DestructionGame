@@ -25,8 +25,11 @@ Projectile::Projectile(const char * texturePath, int damage, int power) : Entity
 	m_AnimationSpeed = 0.15f;
 	m_KeyFrameDuration = 0.15f;
 
+	m_BoundOffsetX = 2;
+	m_BoundOffsetY = 2;
+
 	m_pSprite->setTextureRect(sf::IntRect(m_pCurrentKeyFrame->x * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
-	m_pSprite->setPosition(*m_pStartPosition);
+	SetPosition(*m_pStartPosition);
 	m_pSprite->setOrigin(m_pKeyFrameSize->x / 2, 0);
 }
 
@@ -58,10 +61,7 @@ void Projectile::Shoot()
 		m_SpeedX = m_Direction * m_Power * cos(m_pSprite->getRotation() * 3.141592654f / 180);
 		m_SpeedY = m_Direction * m_Power * sin(m_pSprite->getRotation() * 3.141592654f / 180);
 
-		m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 2 * SCALE;
-		m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pKeyFrameSize->x * SCALE - 2 * SCALE;
-		m_TopBound = (int)m_pSprite->getGlobalBounds().top + 2 * SCALE;
-		m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pKeyFrameSize->y * SCALE - 2 * SCALE;
+		UpdateBounds();
 	}
 }
 
@@ -79,7 +79,8 @@ void Projectile::UpdateExplosion(float dt)
 		sf::Sprite sprite;
 		texture.loadFromImage(*m_pTerrainImage);
 		sprite.setTexture(texture);
-		renderTex.create(Config::GetInstance().GetWindowSizeWidth(), Config::GetInstance().GetWindowSizeHeight());
+		m_pSprite->setTextureRect(sf::IntRect(0, 0, Config::GetInstance().GetWindowSizeWidth() * 2, Config::GetInstance().GetWindowSizeHeight()));
+		renderTex.create(Config::GetInstance().GetWindowSizeWidth() * 2, Config::GetInstance().GetWindowSizeHeight());
 		renderTex.clear();
 		renderTex.draw(sprite);
 
@@ -175,7 +176,7 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 			if (terrain->getPixel(i, m_BottomBound) == GROUND_COLOUR || terrain->getPixel(i, m_TopBound) == GROUND_COLOUR)
 			{
 				m_Shooting = false;
-				m_Explosions.push_back(new sf::Vector2f(m_pSprite->getPosition()));
+				m_Explosions.push_back(new sf::Vector2f(m_pSprite->getPosition() + sf::Vector2f(m_OffsetBounds, 0)));
 
 				sf::CircleShape explosions;
 				sf::RenderTexture renderTex;
@@ -184,7 +185,8 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 
 				texture.loadFromImage(*terrain);
 				sprite.setTexture(texture);
-				renderTex.create(Config::GetInstance().GetWindowSizeWidth(), Config::GetInstance().GetWindowSizeHeight());
+				m_pSprite->setTextureRect(sf::IntRect(0, 0, Config::GetInstance().GetWindowSizeWidth() * 2, Config::GetInstance().GetWindowSizeHeight()));
+				renderTex.create(Config::GetInstance().GetWindowSizeWidth() * 2, Config::GetInstance().GetWindowSizeHeight());
 				renderTex.clear();
 				renderTex.draw(sprite);
 				int radDecrease = m_Damage / 10;
@@ -194,10 +196,11 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 					explosions.setRadius(m_Damage - radDecrease * i);
 					explosions.setFillColor(sf::Color(165 + 10 * i, 0, 0));
 					explosions.setOrigin(m_Damage - radDecrease * i, m_Damage - radDecrease * i);
-					explosions.setPosition(m_pSprite->getPosition());
+					explosions.setPosition(m_pSprite->getPosition() + sf::Vector2f(m_OffsetBounds, 0));
 					explosions.setPointCount(40);
 					renderTex.draw(explosions);
 				}
+				printf("Explosion position: %f, %f\n", explosions.getPosition().x, explosions.getPosition().y);
 
 				renderTex.display();
 
@@ -211,7 +214,7 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 			if (terrain->getPixel(m_LeftBound, j) == GROUND_COLOUR || terrain->getPixel(m_RightBound, j) == GROUND_COLOUR)
 			{
 				m_Shooting = false;
-				m_Explosions.push_back(new sf::Vector2f(m_pSprite->getPosition()));
+				m_Explosions.push_back(new sf::Vector2f(m_pSprite->getPosition() + sf::Vector2f(m_OffsetBounds, 0)));
 
 				sf::CircleShape explosions;
 				sf::RenderTexture renderTex;
@@ -220,7 +223,8 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 
 				texture.loadFromImage(*terrain);
 				sprite.setTexture(texture);
-				renderTex.create(Config::GetInstance().GetWindowSizeWidth(), Config::GetInstance().GetWindowSizeHeight());
+				m_pSprite->setTextureRect(sf::IntRect(0, 0, Config::GetInstance().GetWindowSizeWidth() * 2, Config::GetInstance().GetWindowSizeHeight()));
+				renderTex.create(Config::GetInstance().GetWindowSizeWidth() * 2, Config::GetInstance().GetWindowSizeHeight());
 				renderTex.clear();
 				renderTex.draw(sprite);
 				int radDecrease = m_Damage / 10;
@@ -229,10 +233,11 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 					explosions.setRadius(m_Damage - radDecrease * i);
 					explosions.setFillColor(sf::Color(165 + 10 * i, 0, 0));
 					explosions.setOrigin(m_Damage - radDecrease * i, m_Damage - radDecrease * i);
-					explosions.setPosition(m_pSprite->getPosition());
+					explosions.setPosition(m_pSprite->getPosition() + sf::Vector2f(m_OffsetBounds, 0));
 					explosions.setPointCount(40);
 					renderTex.draw(explosions);
 				}
+				printf("Explosion position: %f, %f\n", explosions.getPosition().x, explosions.getPosition().y);
 
 				renderTex.display();
 
@@ -265,24 +270,13 @@ void Projectile::Update(float dt, sf::RenderWindow * window)
 	}
 	m_pSprite->setTextureRect(sf::IntRect(m_pCurrentKeyFrame->x * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
 
-	if (m_pSprite->getPosition().x <= 0)
-	{
-		m_pSprite->setPosition(Config::GetInstance().GetWindowSizeWidth(), m_pSprite->getPosition().y);
-	}
-	else if (m_pSprite->getPosition().x >= Config::GetInstance().GetWindowSizeWidth())
-	{
-		m_pSprite->setPosition(0, m_pSprite->getPosition().y);
-	}
-
 	if (m_pSprite->getPosition().y > Config::GetInstance().GetWindowSizeHeight())
 	{
 		m_Shooting = false;
 	}
 
-	m_LeftBound = (int)m_pSprite->getGlobalBounds().left + 2 * SCALE;
-	m_RightBound = (int)m_pSprite->getGlobalBounds().left + (int)m_pKeyFrameSize->x * SCALE - 2 * SCALE;
-	m_TopBound = (int)m_pSprite->getGlobalBounds().top + 2 * SCALE;
-	m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pKeyFrameSize->y * SCALE - 2 * SCALE;
+	UpdateBounds();
+
 }
 
 void Projectile::Render(sf::RenderWindow * window)

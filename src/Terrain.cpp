@@ -196,12 +196,12 @@ void Terrain::GenSecondTerrain(unsigned int endHeight, int maxHeight, int minHei
 
 sf::Image& Terrain::GetTerrain()
 {
-	return m_pMainImage? *m_pMainImage : *m_pImage;
+	return m_pMainImage ? *m_pMainImage : *m_pImage;
 }
 
 void Terrain::Update()
 {
-	m_pTexture->loadFromImage(*m_pImage);
+	m_pTexture->loadFromImage(m_pMainImage ? *m_pMainImage : *m_pImage);
 	m_pSprite->setTexture(*m_pTexture);
 }
 
