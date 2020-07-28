@@ -74,6 +74,7 @@ void Projectile::UpdateExplosion(float dt)
 {
 	if (!m_Explosions.empty())
 	{
+		std::vector<unsigned int> toDelete;
 		sf::RenderTexture renderTex;
 		sf::Texture texture;
 		sf::Sprite sprite;
@@ -112,22 +113,22 @@ void Projectile::UpdateExplosion(float dt)
 					circleDown = m_Explosions[i]->y + (m_Damage - 1),
 					circleLeft = m_Explosions[i]->x - (m_Damage - 1);
 			sf::Color colourUp = sf::Color(0, 0, 0, 0);
-			if (circleUp >= 0 && circleUp < height && m_Explosions[i]->x >= 0 && m_Explosions[i]->x < width)
+			if (circleUp >= 0 && circleUp < height && m_Explosions[i]->x >= 0 /*&& m_Explosions[i]->x < width*/)
 			{
 				colourUp = m_pTerrainImage->getPixel(m_Explosions[i]->x, circleUp);
 			}
 			sf::Color colourRight;
-			if (circleRight >= 0 && circleRight < width && m_Explosions[i]->y >= 0 && m_Explosions[i]->y < height)
+			if (circleRight >= 0 /*&& circleRight < width*/ && m_Explosions[i]->y >= 0 && m_Explosions[i]->y < height)
 			{
 				colourRight = m_pTerrainImage->getPixel(circleRight, m_Explosions[i]->y);
 			}
 			sf::Color colourDown;
-			if (circleDown >= 0 && circleDown < height && m_Explosions[i]->x >= 0 && m_Explosions[i]->x < width)
+			if (circleDown >= 0 && circleDown < height && m_Explosions[i]->x >= 0 /*&& m_Explosions[i]->x < width*/)
 			{
 				colourDown = m_pTerrainImage->getPixel(m_Explosions[i]->x, circleDown);
 			}
 			sf::Color colourLeft;
-			if (circleLeft >= 0 && circleLeft < width && m_Explosions[i]->y >= 0 && m_Explosions[i]->y < height)
+			if (circleLeft >= 0 /*&& circleLeft < width*/ && m_Explosions[i]->y >= 0 && m_Explosions[i]->y < height)
 			{
 				colourLeft = m_pTerrainImage->getPixel(circleLeft, m_Explosions[i]->y);
 			}
@@ -140,17 +141,25 @@ void Projectile::UpdateExplosion(float dt)
 
 			if ((colourUp == SKY_COLOUR || colourUp.a == 0) && (colourRight == SKY_COLOUR || colourRight.a == 0) && (colourDown == SKY_COLOUR || colourDown.a == 0) && (colourLeft == SKY_COLOUR || colourLeft.a == 0) && (colourCenter == SKY_COLOUR || colourCenter.a == 0) && explosion.getFillColor() == SKY_COLOUR)
 			{
-				delete m_Explosions[i];
-				m_Explosions.erase(m_Explosions.begin() + i);
-				i = -1;
+				//delete m_Explosions[i];
+				//m_Explosions.erase(m_Explosions.begin() + i);
+				//i = -1;
+
+				toDelete.push_back(i);
 			}
 
 			//printf("colourUp %d\ncolourRight %d\ncolourDown %d\ncolourLeft %d\ncolourCenter %d\ncolourExplosion %d\n\n", colourUp.r, colourRight.r, colourDown.r, colourLeft.r, colourCenter.r, explosion.getFillColor().r);
 		}
+
+		for (int i = toDelete.size() - 1; i >=0; i--)
+		{
+			delete m_Explosions[toDelete[i]];
+			m_Explosions.erase(m_Explosions.begin() + toDelete[i]);
+		}
+
 		renderTex.display();
 
 		*m_pTerrainImage = renderTex.getTexture().copyToImage();
-
 	}
 }
 
