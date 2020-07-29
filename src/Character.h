@@ -32,9 +32,11 @@ protected:
 	bool m_Exploded;
 	float m_FallingTime;
 	int m_Weight;
-
+	unsigned int m_CurrentHealth;
+	unsigned int m_MaxHealth;
+	bool m_Invoulnerable;
 public:
-	Character(const char* texturePath, const char* weaponTexturePath);
+	Character(const char* texturePath, const char* weaponTexturePath, unsigned int health = 0);
 	virtual ~Character();
 
 	virtual void Move(float dt);
@@ -46,7 +48,8 @@ public:
 	virtual bool IsExplosion();
 	virtual bool IsExploded();
 	virtual void OffsetBounds();
-
+	virtual unsigned int GetCurrentHealth();
+	virtual unsigned int GetMaxHealth();
 	virtual void Update(float dt, sf::RenderWindow* window) = 0;
 	virtual void Render(sf::RenderWindow* window) = 0;
 

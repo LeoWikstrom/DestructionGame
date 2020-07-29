@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <stdio.h>
 
-Player::Player(const char* texturePath, const char* weaponTexturePath) : Character(texturePath, weaponTexturePath), m_pCoverSprite(new sf::Sprite), m_pCoverTex(new sf::Texture)
+Player::Player(const char* texturePath, const char* weaponTexturePath) : Character(texturePath, weaponTexturePath, 3), m_pCoverSprite(new sf::Sprite), m_pCoverTex(new sf::Texture)
 {
 	m_pKeyFrameSize->x = 26;
 	m_pKeyFrameSize->y = 25;

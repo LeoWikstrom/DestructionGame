@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <algorithm>
 
-Character::Character(const char * texturePath, const char * weaponTexturePath) : Entity(texturePath), m_pWeaponTex(new sf::Texture), m_pWeaponSprite(new sf::Sprite)
+Character::Character(const char * texturePath, const char * weaponTexturePath, unsigned int health) : Entity(texturePath), m_pWeaponTex(new sf::Texture), m_pWeaponSprite(new sf::Sprite), m_MaxHealth(health), m_CurrentHealth(health), m_Invoulnerable(false)
 {
 	m_pWeaponTex->loadFromFile(weaponTexturePath);
 	m_pWeaponSprite->setTexture(*m_pWeaponTex);
@@ -217,6 +217,16 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 		}
 	}
 
+	if (m_Exploded && !m_Invoulnerable)
+	{
+		m_CurrentHealth = m_CurrentHealth > 0 ? m_CurrentHealth - 1 : 0;
+		m_Invoulnerable = true;
+	}
+	else if (!m_Exploded && m_Invoulnerable)
+	{
+		m_Invoulnerable = false;
+	}
+
 	if (m_Projectiles.front()->IsShooting())
 	{
 		return m_Projectiles.front()->CheckTerrainCollision(terrain);
@@ -282,4 +292,14 @@ void Character::OffsetBounds()
 {
 	m_Projectiles.front()->OffsetBounds();
 	Entity::OffsetBounds();
+}
+
+unsigned int Character::GetCurrentHealth()
+{
+	return m_CurrentHealth;
+}
+
+unsigned int Character::GetMaxHealth()
+{
+	return m_MaxHealth;
 }

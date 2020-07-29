@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <stdio.h>
 
-Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, int detectionRadius, int accuracy) : Character(texturePath, weaponTexturePath)
+Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, int detectionRadius, int accuracy) : Character(texturePath, weaponTexturePath, 1)
 {
 	m_pKeyFrameSize->x = 16;
 	m_pKeyFrameSize->y = 16;
