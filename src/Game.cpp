@@ -31,8 +31,8 @@ void Game::Run()
 	sf::Clock clock;
 	while (m_pWindow->isOpen())
 	{
-		m_pState->Update(clock.restart().asSeconds(), m_pWindow);
 		m_pState->Render(m_pWindow);
+		m_pState->Update(clock.restart().asSeconds(), m_pWindow);
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 		{

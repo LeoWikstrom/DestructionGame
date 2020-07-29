@@ -7,6 +7,7 @@
 #include "Enemy.h"
 #include <iostream>
 #include "Score.h"
+#include "GameOverState.h"
 
 PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), m_CameraOffset(0.f), m_nextTerrainUpdate(Config::GetInstance().GetWindowSizeWidth() * 3 / 2), m_pLifeTex(new sf::Texture()), m_pVisScore(new sf::Text())
 {
@@ -30,7 +31,7 @@ PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), 
 	m_WasDownPressed = false;
 	m_WasRightPressed = false;
 
-	m_Enemies.push(new Enemy("..\\resources\\small_enemy.png", "..\\resources\\gun_small.png", 200, 5));
+	m_Enemies.push_back(new Enemy("..\\resources\\small_enemy.png", "..\\resources\\gun_small.png", 200, 5));
 
 	//sf::Image terrain = m_pTerrain->GetTerrain();
 
@@ -61,17 +62,25 @@ PlayState::~PlayState()
 	delete m_pFont;
 	delete m_pPlayer;
 	delete m_pTerrain;
-	while (!m_Enemies.empty())
+
+	for (int i = 0; i < m_Enemies.size(); i++)
 	{
-		delete m_Enemies.front();
-		m_Enemies.pop();
+		delete m_Enemies[i];
 	}
+	m_Enemies.clear();
 
 	delete m_pVisScore;
 }
 
 void PlayState::Update(float dt, sf::RenderWindow * window)
 {
+	if (m_pPlayer->GetCurrentHealth() == 0)
+	{
+		if (m_pLastState == nullptr)
+			window->close();
+		PopState();
+		return;
+	}
 	//Input
 	sf::Event event;
 	if (window->hasFocus())
@@ -245,6 +254,29 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 
 	m_pVisScore->setString(std::to_string(Score::GetScore()));
 	m_pVisScore->setPosition(m_CameraOffset, 0);
+
+	std::vector<unsigned int> enemiesToDelete;
+	
+	for (unsigned int i = 0; i < m_Enemies.size(); i++)
+	{
+		if (m_Enemies[i]->GetCurrentHealth() == 0 || m_Enemies[i]->GetPosition().x < (m_CameraOffset - Config::GetInstance().GetWindowSizeWidth()))
+		{
+			enemiesToDelete.push_back(i);
+		}
+	}
+
+	for (int i = enemiesToDelete.size() - 1; i >= 0; i--)
+	{
+		m_Enemies.erase(m_Enemies.begin() + enemiesToDelete[i]);
+	}
+
+	if (m_pPlayer->GetCurrentHealth() == 0)
+	{
+		// Reset the view...
+		window->setView(sf::View(sf::Vector2f(Config::GetInstance().GetWindowSizeWidth() / 2, Config::GetInstance().GetWindowSizeHeight() / 2), sf::Vector2f(Config::GetInstance().GetWindowSizeWidth(), Config::GetInstance().GetWindowSizeHeight())));
+		
+		ChangeState(new GameOverState(m_pGame, m_pFont));
+	}
 }
 
 void PlayState::Render(sf::RenderWindow * window)

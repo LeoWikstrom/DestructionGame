@@ -32,7 +32,7 @@ private:
 	bool m_WasLeftPressed;
 	bool m_WasDownPressed;
 	bool m_WasRightPressed;
-	std::queue<Enemy*> m_Enemies;
+	std::vector<Enemy*> m_Enemies;
 	float m_CameraOffset;
 	float m_nextTerrainUpdate;
 
