@@ -8,6 +8,7 @@ namespace sf
 	class Font;
 	class Sprite;
 	class Texture;
+	class Text;
 }
 
 class Game;
@@ -37,6 +38,8 @@ private:
 
 	sf::Sprite** m_ppLifeSprites;
 	sf::Texture* m_pLifeTex;
+
+	sf::Text* m_pVisScore;
 
 public:
 	PlayState(Game* game);

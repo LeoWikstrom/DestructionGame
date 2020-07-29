@@ -6,8 +6,9 @@
 #include "Config.h"
 #include "Enemy.h"
 #include <iostream>
+#include "Score.h"
 
-PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), m_CameraOffset(0.f), m_nextTerrainUpdate(Config::GetInstance().GetWindowSizeWidth() * 3 / 2), m_pLifeTex(new sf::Texture())
+PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), m_CameraOffset(0.f), m_nextTerrainUpdate(Config::GetInstance().GetWindowSizeWidth() * 3 / 2), m_pLifeTex(new sf::Texture()), m_pVisScore(new sf::Text())
 {
 	m_pFont = new sf::Font();
 	char* winDir = getenv("WinDir"); //Get the window directory
@@ -42,6 +43,8 @@ PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), 
 		m_ppLifeSprites[i]->setPosition(0 + 16 * i, 0);
 		m_ppLifeSprites[i]->setScale(SCALE, SCALE);
 	}
+
+	m_pVisScore->setFont(*m_pFont);
 }
 
 PlayState::~PlayState()
@@ -63,6 +66,8 @@ PlayState::~PlayState()
 		delete m_Enemies.front();
 		m_Enemies.pop();
 	}
+
+	delete m_pVisScore;
 }
 
 void PlayState::Update(float dt, sf::RenderWindow * window)
@@ -229,11 +234,17 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 	view.setCenter(m_CameraOffset, view.getCenter().y);
 	window->setView(view);
 
+
 	for (unsigned int i = 0; i < m_pPlayer->GetMaxHealth(); i++)
 	{
 		m_ppLifeSprites[i]->setPosition(m_CameraOffset - Config::GetInstance().GetWindowSizeWidth() / 2 + 20 * i + 10, 0);
 	}
 
+	if(m_pPlayer->GetCurrentHealth() > 0)
+		Score::SetDistance((m_CameraOffset - Config::GetInstance().GetWindowSizeWidth() / 2) / 10);
+
+	m_pVisScore->setString(std::to_string(Score::GetScore()));
+	m_pVisScore->setPosition(m_CameraOffset, 0);
 }
 
 void PlayState::Render(sf::RenderWindow * window)
@@ -248,5 +259,6 @@ void PlayState::Render(sf::RenderWindow * window)
 		window->draw(*m_ppLifeSprites[i]);
 	}
 
+	window->draw(*m_pVisScore);
 	window->display();
 }
