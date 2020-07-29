@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include "Config.h"
-#include "PlayState.h"
+#include "MenuState.h"
 
 void Game::ChangeState(GameState* state)
 {
@@ -12,7 +12,7 @@ void Game::ChangeState(GameState* state)
 Game::Game()
 {
 	m_pWindow = new sf::RenderWindow(sf::VideoMode(Config::GetInstance().GetWindowSizeWidth(), Config::GetInstance().GetWindowSizeHeight()), "Destruction Game");
-	m_pState = new PlayState(this);
+	m_pState = new MenuState(this);
 
 	sf::Image icon;
 	icon.loadFromFile("..\\resources\\player_icon.png");

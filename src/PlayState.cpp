@@ -9,11 +9,8 @@
 #include "Score.h"
 #include "GameOverState.h"
 
-PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), m_CameraOffset(0.f), m_nextTerrainUpdate(Config::GetInstance().GetWindowSizeWidth() * 3 / 2), m_pLifeTex(new sf::Texture()), m_pVisScore(new sf::Text())
+PlayState::PlayState(Game * game, sf::Font* font) : GameState(game), m_pTerrain(new Terrain()), m_CameraOffset(0.f), m_nextTerrainUpdate(Config::GetInstance().GetWindowSizeWidth() * 3 / 2), m_pLifeTex(new sf::Texture()), m_pVisScore(new sf::Text()), m_pFont(font)
 {
-	m_pFont = new sf::Font();
-	char* winDir = getenv("WinDir"); //Get the window directory
-	m_pFont->loadFromFile(std::string(winDir) + "\\Fonts\\Ebrima.ttf");
 
 	m_pPlayer = new Player("..\\resources\\player.png", "..\\resources\\gun_player.png");
 
@@ -50,7 +47,6 @@ PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), 
 
 PlayState::~PlayState()
 {
-
 	delete m_pLifeTex;
 
 	for (int i = 0; i < m_pPlayer->GetMaxHealth(); i++)
@@ -58,8 +54,6 @@ PlayState::~PlayState()
 		delete m_ppLifeSprites[i];
 	}
 	delete[] m_ppLifeSprites;
-
-	delete m_pFont;
 	delete m_pPlayer;
 	delete m_pTerrain;
 
@@ -259,7 +253,12 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 	
 	for (unsigned int i = 0; i < m_Enemies.size(); i++)
 	{
-		if (m_Enemies[i]->GetCurrentHealth() == 0 || m_Enemies[i]->GetPosition().x < (m_CameraOffset - Config::GetInstance().GetWindowSizeWidth()))
+		if (m_Enemies[i]->GetCurrentHealth() == 0)
+		{
+			Score::AddKillScore(5);
+			enemiesToDelete.push_back(i);
+		}
+		else if (m_Enemies[i]->GetPosition().x < (m_CameraOffset - Config::GetInstance().GetWindowSizeWidth()))
 		{
 			enemiesToDelete.push_back(i);
 		}

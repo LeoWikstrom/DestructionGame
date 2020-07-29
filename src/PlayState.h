@@ -42,7 +42,7 @@ private:
 	sf::Text* m_pVisScore;
 
 public:
-	PlayState(Game* game);
+	PlayState(Game* game, sf::Font* font);
 	~PlayState();
 	virtual void Update(float dt, sf::RenderWindow* window);
 	virtual void Render(sf::RenderWindow* window);
