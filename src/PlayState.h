@@ -6,6 +6,8 @@
 namespace sf
 {
 	class Font;
+	class Sprite;
+	class Texture;
 }
 
 class Game;
@@ -32,6 +34,9 @@ private:
 	std::queue<Enemy*> m_Enemies;
 	float m_CameraOffset;
 	float m_nextTerrainUpdate;
+
+	sf::Sprite** m_ppLifeSprites;
+	sf::Texture* m_pLifeTex;
 
 public:
 	PlayState(Game* game);

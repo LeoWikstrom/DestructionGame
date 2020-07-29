@@ -7,7 +7,7 @@
 #include "Enemy.h"
 #include <iostream>
 
-PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), m_CameraOffset(0.f), m_nextTerrainUpdate(Config::GetInstance().GetWindowSizeWidth() * 3 / 2)
+PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), m_CameraOffset(0.f), m_nextTerrainUpdate(Config::GetInstance().GetWindowSizeWidth() * 3 / 2), m_pLifeTex(new sf::Texture())
 {
 	m_pFont = new sf::Font();
 	char* winDir = getenv("WinDir"); //Get the window directory
@@ -32,10 +32,29 @@ PlayState::PlayState(Game * game) : GameState(game), m_pTerrain(new Terrain()), 
 	m_Enemies.push(new Enemy("..\\resources\\small_enemy.png", "..\\resources\\gun_small.png", 200, 5));
 
 	//sf::Image terrain = m_pTerrain->GetTerrain();
+
+	m_pLifeTex->loadFromFile("..\\resources\\heart.png");
+	m_ppLifeSprites = new sf::Sprite * [m_pPlayer->GetMaxHealth()];
+	for (unsigned int i = 0; i < m_pPlayer->GetMaxHealth(); i++)
+	{
+		m_ppLifeSprites[i] = new sf::Sprite();
+		m_ppLifeSprites[i]->setTexture(*m_pLifeTex);
+		m_ppLifeSprites[i]->setPosition(0 + 16 * i, 0);
+		m_ppLifeSprites[i]->setScale(SCALE, SCALE);
+	}
 }
 
 PlayState::~PlayState()
 {
+
+	delete m_pLifeTex;
+
+	for (int i = 0; i < m_pPlayer->GetMaxHealth(); i++)
+	{
+		delete m_ppLifeSprites[i];
+	}
+	delete[] m_ppLifeSprites;
+
 	delete m_pFont;
 	delete m_pPlayer;
 	delete m_pTerrain;
@@ -210,6 +229,11 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 	view.setCenter(m_CameraOffset, view.getCenter().y);
 	window->setView(view);
 
+	for (unsigned int i = 0; i < m_pPlayer->GetMaxHealth(); i++)
+	{
+		m_ppLifeSprites[i]->setPosition(m_CameraOffset - Config::GetInstance().GetWindowSizeWidth() / 2 + 20 * i + 10, 0);
+	}
+
 }
 
 void PlayState::Render(sf::RenderWindow * window)
@@ -218,5 +242,11 @@ void PlayState::Render(sf::RenderWindow * window)
 	m_pTerrain->Render(window);
 	m_Enemies.front()->Render(window);
 	m_pPlayer->Render(window);
+
+	for (unsigned int i = 0; i < m_pPlayer->GetCurrentHealth(); i++)
+	{
+		window->draw(*m_ppLifeSprites[i]);
+	}
+
 	window->display();
 }
