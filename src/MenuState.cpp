@@ -3,9 +3,10 @@
 #include "Config.h"
 #include "PlayState.h"
 #include "Score.h"
+#include "Highscore.h"
 const int nrOfAlternatives = 2;
 
-MenuState::MenuState(Game* game) : GameState(game), m_pFont(new sf::Font()), m_ppTexts(new sf::Text*[nrOfAlternatives]), m_MenuAlternative(0), m_KeyReleased(true)
+MenuState::MenuState(Game* game) : GameState(game), m_pFont(new sf::Font()), m_ppTexts(new sf::Text*[nrOfAlternatives]), m_MenuAlternative(0), m_KeyReleased(true), m_pHighScore(new Highscore())
 {
 	char* winDir = getenv("WinDir"); //Get the window directory
 	m_pFont->loadFromFile(std::string(winDir) + "\\Fonts\\Ebrima.ttf");
@@ -33,6 +34,7 @@ MenuState::~MenuState()
 		delete m_ppTexts[i];
 	}
 	delete[] m_ppTexts;
+	delete m_pHighScore;
 }
 
 void MenuState::Update(float dt, sf::RenderWindow* window)

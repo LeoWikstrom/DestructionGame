@@ -7,13 +7,14 @@ namespace sf
 	class Font;
 	class Text;
 }
-
+class Highscore;
 
 class MenuState : public GameState
 {
 private:
 	sf::Font* m_pFont;
 	sf::Text** m_ppTexts;
+	Highscore* m_pHighScore;
 	unsigned int m_MenuAlternative;
 	bool m_KeyReleased;
 public:
