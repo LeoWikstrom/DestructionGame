@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Config.h"
 #include "PlayState.h"
+#include "Score.h"
 const int nrOfAlternatives = 2;
 
 MenuState::MenuState(Game* game) : GameState(game), m_pFont(new sf::Font()), m_ppTexts(new sf::Text*[nrOfAlternatives]), m_MenuAlternative(0), m_KeyReleased(true)
@@ -55,6 +56,7 @@ void MenuState::Update(float dt, sf::RenderWindow* window)
 					switch (m_MenuAlternative)
 					{
 					case 0:
+						Score::ResetScore();
 						ChangeState(new PlayState(m_pGame, m_pFont));
 						break;
 					case (nrOfAlternatives - 1):
@@ -66,7 +68,7 @@ void MenuState::Update(float dt, sf::RenderWindow* window)
 					}
 				}
 
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && m_KeyReleased)
+				if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W)) && m_KeyReleased)
 				{
 					m_ppTexts[m_MenuAlternative--]->setFillColor(sf::Color::White);
 					if (m_MenuAlternative == -1)
@@ -78,7 +80,7 @@ void MenuState::Update(float dt, sf::RenderWindow* window)
 					m_KeyReleased = false;
 				}
 
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && m_KeyReleased)
+				if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::S)) && m_KeyReleased)
 				{
 					m_ppTexts[m_MenuAlternative++]->setFillColor(sf::Color::White);
 					m_MenuAlternative %= nrOfAlternatives;
