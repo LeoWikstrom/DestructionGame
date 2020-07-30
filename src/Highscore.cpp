@@ -117,3 +117,24 @@ void Highscore::AddScore(Scoring entry)
 void Highscore::AddScore(const char* name, unsigned int score)
 {
 }
+
+const char* Highscore::GetName(unsigned int entry)
+{
+    return GetInstance().m_pScores[entry].name;
+}
+
+unsigned int Highscore::GetScore(unsigned int entry)
+{
+    return GetInstance().m_pScores[entry].score;
+}
+
+unsigned int Highscore::GetNrOfEntries()
+{
+    return 5;
+}
+
+Highscore& Highscore::GetInstance()
+{
+    static Highscore instance;
+    return instance;
+}

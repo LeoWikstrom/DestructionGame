@@ -3,10 +3,10 @@
 #include "Config.h"
 #include "PlayState.h"
 #include "Score.h"
-#include "Highscore.h"
-const int nrOfAlternatives = 2;
+#include "HighscoreState.h"
+const int nrOfAlternatives = 3;
 
-MenuState::MenuState(Game* game) : GameState(game), m_pFont(new sf::Font()), m_ppTexts(new sf::Text*[nrOfAlternatives]), m_MenuAlternative(0), m_KeyReleased(true), m_pHighScore(new Highscore())
+MenuState::MenuState(Game* game) : GameState(game), m_pFont(new sf::Font()), m_ppTexts(new sf::Text*[nrOfAlternatives]), m_MenuAlternative(0), m_KeyReleased(true)
 {
 	char* winDir = getenv("WinDir"); //Get the window directory
 	m_pFont->loadFromFile(std::string(winDir) + "\\Fonts\\Ebrima.ttf");
@@ -20,7 +20,7 @@ MenuState::MenuState(Game* game) : GameState(game), m_pFont(new sf::Font()), m_p
 	}
 
 	m_ppTexts[0]->setString("Start");
-
+	m_ppTexts[1]->setString("Highscore");
 	m_ppTexts[nrOfAlternatives - 1]->setString("Exit");
 
 	m_ppTexts[0]->setFillColor(sf::Color::Blue);
@@ -34,7 +34,6 @@ MenuState::~MenuState()
 		delete m_ppTexts[i];
 	}
 	delete[] m_ppTexts;
-	delete m_pHighScore;
 }
 
 void MenuState::Update(float dt, sf::RenderWindow* window)
@@ -60,6 +59,9 @@ void MenuState::Update(float dt, sf::RenderWindow* window)
 					case 0:
 						Score::ResetScore();
 						ChangeState(new PlayState(m_pGame, m_pFont));
+						break;
+					case 1:
+						ChangeState(new HighscoreState(m_pGame, m_pFont));
 						break;
 					case (nrOfAlternatives - 1):
 						PopState();
