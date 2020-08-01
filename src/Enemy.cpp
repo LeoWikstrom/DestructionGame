@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <stdio.h>
 
-Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, int detectionRadius, int accuracy) : Character(texturePath, weaponTexturePath, 1)
+Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, int detectionRadius, int accuracy, int health) : Character(texturePath, weaponTexturePath, health)
 {
 	m_pKeyFrameSize->x = 16;
 	m_pKeyFrameSize->y = 16;
@@ -15,8 +15,8 @@ Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, int detecti
 	m_AnimationLength = 4;
 	m_pCurrentKeyFrame->x = m_AnimationStart;
 	m_pCurrentKeyFrame->y = 0;
-	m_pStartPosition->x = Config::GetInstance().GetWindowSizeWidth() - 16;
-	m_pStartPosition->y = 200 * SCALE;
+	m_pStartPosition->x = Config::GetInstance().GetWindowSizeWidth() * (accuracy / 5);
+	m_pStartPosition->y = 0;
 	m_AnimationSpeed = 0.15f;
 	m_KeyFrameDuration = 0.f;
 	m_BoundOffsetX = 2;
@@ -37,12 +37,23 @@ Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, int detecti
 	m_pWeaponSprite->setOrigin(sf::Vector2f(m_pWeaponSprite->getGlobalBounds().width / 2, m_pWeaponSprite->getGlobalBounds().height / 2));
 	m_pWeaponSprite->setPosition(sf::Vector2f(m_pStartPosition->x + 1 * SCALE, m_pStartPosition->y + 7 * SCALE));
 	m_pWeaponSprite->setScale(SCALE, SCALE);
-	m_WeaponAngle = 0;
-
-	m_Projectiles.front()->SetDirection(-1);
+	m_WeaponAngle = 2;
+	SetWeaponRotation(m_WeaponAngle);
 
 	m_Jumping = false;
 
+	m_FullHealth = health;
+
+	m_Projectiles.push(new Projectile("..\\resources\\projectile.png", (-175 * SCALE + m_DetectionRadius), (100 * SCALE + m_DetectionRadius) / 2));
+	m_Projectiles.front()->SetDirection(-1);
+
+	m_RotateDown = true;
+
+	m_Shoot = false;
+
+	m_LastDistance = 0;
+	m_SecondLastDistance = 0;
+	m_LastAngle = 2;
 
 	UpdateBounds();
 }
@@ -53,7 +64,7 @@ Enemy::~Enemy()
 
 void Enemy::CheckForPlayer(int playerX, int playerY)
 {
-	if (sqrt(pow(m_pSprite->getPosition().x - playerX, 2) + pow(m_pSprite->getPosition().y - playerY, 2)) <= m_DetectionRadius && m_pSprite->getPosition().x > playerX)
+	if (!m_Projectiles.front()->IsShooting() && sqrt(pow(m_pSprite->getPosition().x - playerX, 2) + pow(m_pSprite->getPosition().y - playerY, 2)) <= m_DetectionRadius && m_pSprite->getPosition().x > playerX)
 	{
 		m_WalkingSpeed = 0;
 		AimForPlayer(playerX, playerY);
@@ -66,15 +77,109 @@ void Enemy::CheckForPlayer(int playerX, int playerY)
 
 void Enemy::AimForPlayer(int playerX, int playerY)
 {
-	m_pSprite->setTextureRect(sf::IntRect(2 * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
-	if (!IsInAir() && !m_Projectiles.front()->IsShooting())
+	if (!IsInAir() && !m_Projectiles.front()->IsShooting() && abs(m_SpeedX) <= 0.001)
 	{
-		//Shoot();
+		if (m_Shoot)
+		{
+			Shoot();
+			m_LastDistance = 0;
+			m_SecondLastDistance = 0;
+			m_LastAngle = 2;
+		}
+		if (m_WeaponAngle < 1.f || m_WeaponAngle > 45.f)
+		{
+			SetWeaponRotation(m_LastAngle);
+			m_RotateDown = !m_RotateDown;
+		}
+		float g = 9.81 * 20 * SCALE;
+
+		float v_0 = (100 * SCALE + m_DetectionRadius) / 2;
+		float y_0 = abs(m_Projectiles.front()->GetPosition().y - playerY);
+
+		float angle = m_WeaponAngle;
+		float x = abs(pow(v_0, 2) / (2 * g) * (1 + sqrt(1 + (2 * g * y_0 / (pow(v_0, 2) * pow(sin(angle * 3.141592654f / 180), 2))))) * sin(2 * angle * 3.141592654f / 180));
+		
+		float lastDiff = abs(m_LastDistance - (m_Projectiles.front()->GetPosition().x - playerX));
+		float secondLastDiff = abs(m_SecondLastDistance - (m_Projectiles.front()->GetPosition().x - playerX));
+		float diff = abs(x - (m_Projectiles.front()->GetPosition().x - playerX));
+		if (lastDiff < diff && m_LastDistance != 0)
+		{
+			m_RotateDown = !m_RotateDown;
+		}
+		if ((lastDiff < diff && secondLastDiff > lastDiff && m_SecondLastDistance != 0))
+		{
+			//printf("SHOOT!\n");
+			m_Shoot = true;
+		}
+		else
+		{
+			m_pSprite->setTextureRect(sf::IntRect((2 + 2 * (angle > 22)) * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
+			if (angle == 45 || angle == 1)
+			{
+				m_RotateDown = !m_RotateDown;
+			}
+			RotateWeapon(m_RotateDown);
+
+			//printf("Angle: %f\nTarget distance: %f\nDistance: %f\n", angle, m_Projectiles.front()->GetPosition().x - playerX, x);
+			//printf("Last distance: %f\nSecond last distance: %f\n\n", m_LastDistance, m_SecondLastDistance);
+
+			m_SecondLastDistance = m_LastDistance;
+			m_LastDistance = x;
+		}
+
+		if (abs(m_Projectiles.front()->GetPosition().x - playerX) < (-175 * SCALE + m_DetectionRadius) && abs(m_Projectiles.front()->GetPosition().y - playerY) < (-175 * SCALE + m_DetectionRadius))
+		{
+			m_pSprite->setTextureRect(sf::IntRect(5 * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
+			SetWeaponRotation(315);
+			m_Shoot = true;
+		}
+		
+		//if ((m_SecondLastDistance > m_LastDistance && m_LastDistance < x && abs(m_LastDistance - (m_Projectiles.front()->GetPosition().x - playerX)) > 50) && abs(m_LastDistance - (m_Projectiles.front()->GetPosition().x - playerX)) < m_LastDistance)
+		//{
+		//	m_LastAngle = angle;
+		//	SetWeaponRotation(315);
+		//	m_pSprite->setTextureRect(sf::IntRect(5 * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
+
+		//	printf("SHOOT DOWN!\n");
+		//	//Shoot();
+		//}
+		//else if ((m_SecondLastDistance < m_LastDistance && m_LastDistance > x && abs(m_LastDistance - (m_Projectiles.front()->GetPosition().x - playerX)) > 50) && abs(m_LastDistance - (m_Projectiles.front()->GetPosition().x - playerX)) > m_LastDistance)
+		//{
+		//	m_LastAngle = angle;
+		//	SetWeaponRotation(45);
+		//	m_pSprite->setTextureRect(sf::IntRect(4 * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
+
+		//	printf("SHOOT UP!\n");
+		//	//Shoot();
+		//}
+	}
+
+}
+
+void Enemy::RotateWeapon(bool direction)
+{
+	if ((m_WeaponAngle >= 0 && m_WeaponAngle < 45) || (m_WeaponAngle <= 360 && m_WeaponAngle > 315) || (m_WeaponAngle == 45 && !direction) || (m_WeaponAngle == 315 && direction))
+	{
+		if (m_pCurrentKeyFrame->y == 0)
+		{
+			m_pWeaponSprite->rotate((2 * direction - 1));
+			m_WeaponAngle = m_pWeaponSprite->getRotation();
+		}
+		else
+		{
+			m_pWeaponSprite->rotate(-(2 * direction - 1));
+			m_WeaponAngle = (360 - m_pWeaponSprite->getRotation());
+		}
 	}
 }
 
-void Enemy::Update(float dt, sf::RenderWindow * window)
+void Enemy::Update(float dt, sf::RenderWindow * window, float offset)
 {
+	if (m_RightBound >= (int)(offset + (Config::GetInstance().GetWindowSizeWidth() / 2)) + m_OffsetBounds + m_pKeyFrameSize->x * 2 * SCALE)
+	{
+		m_Falling = false;
+	}
+
 	Move(dt);
 
 	if (!m_Projectiles.front()->IsShooting())
@@ -83,7 +188,7 @@ void Enemy::Update(float dt, sf::RenderWindow * window)
 	}
 	else
 	{
-		m_Projectiles.front()->Update(dt, window);
+		m_Projectiles.front()->Update(dt, window, offset);
 	}
 	if (m_Projectiles.front()->IsExplosion())
 	{
@@ -102,22 +207,35 @@ void Enemy::Update(float dt, sf::RenderWindow * window)
 		}
 	}
 
-	if (m_pSprite->getPosition().x <= -16 * SCALE)
+	if (m_RightBound < (int)(offset - (Config::GetInstance().GetWindowSizeWidth() / 2)) + m_OffsetBounds)
 	{
-		//m_pSprite->setPosition(Config::GetInstance().GetWindowSizeWidth(), m_pSprite->getPosition().y);
+		m_pSprite->move(Config::GetInstance().GetWindowSizeWidth() * 2, -m_TopBound);
+		m_pWeaponSprite->move(Config::GetInstance().GetWindowSizeWidth() * 2, -m_TopBound);
+		m_SpeedX = 0;
+		m_SpeedY = 0;
+		UpdateBounds();
+		m_CurrentHealth = m_FullHealth;
 	}
-	if (m_pSprite->getPosition().x >= Config::GetInstance().GetWindowSizeWidth() - 16 * SCALE && m_SpeedX > 0)
+	/*if (m_RightBound >= (int)(offset + (Config::GetInstance().GetWindowSizeWidth() / 2)) + m_OffsetBounds && m_SpeedX > 0)
 	{
 		m_SpeedX *= -1;
-	}
-	if (m_pSprite->getPosition().y <= 0)
+	}*/
+	if (m_TopBound > Config::GetInstance().GetWindowSizeHeight())
 	{
-		m_SpeedY *= -1;
+		m_CurrentHealth = 0;
 	}
 
-	if (m_pWeaponSprite->getPosition().x <= -16 * SCALE)
+	if (m_CurrentHealth == 0)
 	{
-		//m_pWeaponSprite->setPosition(Config::GetInstance().GetWindowSizeWidth(), m_pWeaponSprite->getPosition().y);
+		printf("DEAD!\n");
+		m_pSprite->move(Config::GetInstance().GetWindowSizeWidth() * 2, -m_TopBound);
+		m_pWeaponSprite->move(Config::GetInstance().GetWindowSizeWidth() * 2, -m_TopBound);
+		m_SpeedX = 0;
+		m_SpeedY = 0;
+		UpdateBounds();
+		SetWeaponRotation(2);
+		m_RotateDown = true;
+		m_CurrentHealth = m_FullHealth;
 	}
 
 	UpdateBounds();

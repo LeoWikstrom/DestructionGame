@@ -34,7 +34,7 @@ protected:
 	int m_Weight;
 	unsigned int m_CurrentHealth;
 	unsigned int m_MaxHealth;
-	bool m_Invoulnerable;
+	bool m_Invulnerable;
 public:
 	Character(const char* texturePath, const char* weaponTexturePath, unsigned int health = 0);
 	virtual ~Character();
@@ -50,7 +50,7 @@ public:
 	virtual void OffsetBounds();
 	virtual unsigned int GetCurrentHealth();
 	virtual unsigned int GetMaxHealth();
-	virtual void Update(float dt, sf::RenderWindow* window) = 0;
+	virtual void Update(float dt, sf::RenderWindow* window, float offset) = 0;
 	virtual void Render(sf::RenderWindow* window) = 0;
 
 };
