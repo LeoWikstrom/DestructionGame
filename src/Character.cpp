@@ -68,19 +68,8 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 	{
 		for (int i = m_LeftBound; i <= m_RightBound; ++i)
 		{
-			if (terrain->getPixel(i, m_BottomBound) == GROUND_COLOUR)
+			if (terrain->getPixel(i, m_BottomBound) != SKY_COLOUR)
 			{
-				m_Exploded = false;
-				if (m_SpeedY >= 0)
-				{
-					if (!m_Jumping)
-					{
-						m_SpeedY = 0;
-					}
-					m_Falling = false;
-					m_FallingTime = 0;
-				}
-
 				bool walkableRight = true, walkableLeft = true, fullStop = false;
 				int height = 0;
 
@@ -88,7 +77,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 				{
 					if (m_SpeedX < 0)
 					{
-						if (terrain->getPixel(m_LeftBound, j) != GROUND_COLOUR)
+						if (terrain->getPixel(m_LeftBound, j) == SKY_COLOUR)
 						{
 							walkableLeft = true;
 
@@ -102,7 +91,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 					}
 					else if (m_SpeedX > 0)
 					{
-						if (terrain->getPixel(m_RightBound, j) != GROUND_COLOUR)
+						if (terrain->getPixel(m_RightBound, j) == SKY_COLOUR)
 						{
 							walkableRight = true;
 						}
@@ -118,7 +107,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 				{
 					if (m_SpeedX < 0)
 					{
-						if (terrain->getPixel(m_LeftBound, j) == GROUND_COLOUR)
+						if (terrain->getPixel(m_LeftBound, j) != SKY_COLOUR)
 						{
 							walkableLeft = false;
 							fullStop = true;
@@ -126,12 +115,23 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 					}
 					else if (m_SpeedX > 0)
 					{
-						if (terrain->getPixel(m_RightBound, j) == GROUND_COLOUR)
+						if (terrain->getPixel(m_RightBound, j) != SKY_COLOUR)
 						{
 							walkableRight = false;
 							fullStop = true;
 						}
 					}
+				}
+
+				m_Exploded = false;
+				if (m_SpeedY >= 0)
+				{
+					if (!m_Jumping)
+					{
+						m_SpeedY = 0;
+					}
+					m_Falling = false;
+					m_FallingTime = 0;
 				}
 
 				if ((walkableLeft && m_SpeedX < 0 || walkableRight && m_SpeedX > 0) && !m_Jumping && !m_Falling && !fullStop)
@@ -145,7 +145,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 				break;
 			}
 
-			if (terrain->getPixel(i, m_TopBound) == GROUND_COLOUR)
+			if (terrain->getPixel(i, m_TopBound) != SKY_COLOUR)
 			{
 				if (m_SpeedY < 0)
 				{
@@ -161,14 +161,14 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 			bool fullStop = false;
 			if (m_SpeedX < 0)
 			{
-				if (terrain->getPixel(m_LeftBound, i) == GROUND_COLOUR)
+				if (terrain->getPixel(m_LeftBound, i) != SKY_COLOUR)
 				{
 					fullStop = true;
 				}
 			}
 			else if (m_SpeedX > 0)
 			{
-				if (terrain->getPixel(m_RightBound, i) == GROUND_COLOUR)
+				if (terrain->getPixel(m_RightBound, i) != SKY_COLOUR)
 				{
 					fullStop = true;
 				}

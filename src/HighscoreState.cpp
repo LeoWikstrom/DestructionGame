@@ -13,6 +13,7 @@ HighscoreState::HighscoreState(Game* game, sf::Font* font): GameState(game), m_p
 		tmp.append(std::to_string(Highscore::GetScore(i)));
 		m_pEntries[i].setString(tmp);
 		m_pEntries[i].setFont(*m_pFont);
+		m_pEntries[i].setScale(SCALE, SCALE);
 
 		m_pEntries[i].setPosition(Config::GetInstance().GetWindowSizeWidth() / 2 - m_pEntries[i].getGlobalBounds().width / 2, (Config::GetInstance().GetWindowSizeHeight() * 4 / 5) * i / 5 + (Config::GetInstance().GetWindowSizeHeight() / 10));
 	}

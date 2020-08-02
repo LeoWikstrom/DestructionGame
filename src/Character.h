@@ -38,6 +38,7 @@ protected:
 	unsigned int m_CurrentHealth;
 	unsigned int m_MaxHealth;
 	bool m_Invulnerable;
+
 public:
 	Character(const char* texturePath, const char* weaponTexturePath, std::vector<Explosion*>* explosions, unsigned int health = 0);
 	virtual ~Character();

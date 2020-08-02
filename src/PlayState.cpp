@@ -28,12 +28,13 @@ PlayState::PlayState(Game * game, sf::Font* font) : GameState(game), m_pTerrain(
 	m_WasLeftPressed = false;
 	m_WasDownPressed = false;
 	m_WasRightPressed = false;
+	m_WasTerrainGenerated = false;
 
-	for (int i = 0; i < 3; ++i)
+	for (int i = 1; i <= 6; ++i)
 	{
-		//char path[] = "..\\resources\\blobert1.png";
-		//path[20] = i + 49;
-		//m_Enemies.push_back(new Enemy(path, "..\\resources\\gun_small.png", &m_Explosions, 200 + 25 * i, 5 * (i + 1), i + 1));
+		char path[] = "..\\resources\\blobert1.png";
+		path[20] = ((i + (i % 2)) / 2) + 48;
+		m_Enemies.push_back(new Enemy(path, "..\\resources\\gun_small.png", 200 + 25 * ((i - 1) % 3), i, ((i - 1) % 3) + 1));
 	}
 
 	//sf::Image terrain = m_pTerrain->GetTerrain();
@@ -44,12 +45,12 @@ PlayState::PlayState(Game * game, sf::Font* font) : GameState(game), m_pTerrain(
 	{
 		m_ppLifeSprites[i] = new sf::Sprite();
 		m_ppLifeSprites[i]->setTexture(*m_pLifeTex);
-		m_ppLifeSprites[i]->setPosition(0 + 16 * i * SCALE, 0);
+		m_ppLifeSprites[i]->setPosition(8 * i * SCALE, 0);
 		m_ppLifeSprites[i]->setScale(2*SCALE, 2*SCALE);
 	}
 
 	m_pVisScore->setFont(*m_pFont);
-
+	m_pVisScore->setScale(SCALE, SCALE);
 }
 
 PlayState::~PlayState()
@@ -226,6 +227,12 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 		}
 	}
 
+	if (m_WasTerrainGenerated)
+	{
+		m_WasTerrainGenerated = false;
+		dt = 0;
+	}
+
 	if (m_CameraOffset > m_nextTerrainUpdate)
 	{
 		m_nextTerrainUpdate += Config::GetInstance().GetWindowSizeWidth();
@@ -236,6 +243,7 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 			m_Enemies[i]->OffsetBounds();
 		}
 		std::cout << "Generated second terrain, offset is: " << m_CameraOffset << std::endl;
+		m_WasTerrainGenerated = true;
 	}
 
 	bool isEnemyCollision = false;
@@ -284,7 +292,7 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 
 	for (unsigned int i = 0; i < m_pPlayer->GetMaxHealth(); i++)
 	{
-		m_ppLifeSprites[i]->setPosition(m_CameraOffset - Config::GetInstance().GetWindowSizeWidth() / 2 + 20 * i + 10, 0);
+		m_ppLifeSprites[i]->setPosition(m_CameraOffset - Config::GetInstance().GetWindowSizeWidth() / 2 + 20 * i * SCALE + 10 * SCALE, 0);
 	}
 
 	if (m_pPlayer->GetCurrentHealth() > 0)

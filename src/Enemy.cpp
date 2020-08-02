@@ -15,7 +15,7 @@ Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, std::vector
 	m_AnimationLength = 4;
 	m_pCurrentKeyFrame->x = m_AnimationStart;
 	m_pCurrentKeyFrame->y = 0;
-	m_pStartPosition->x = Config::GetInstance().GetWindowSizeWidth() * (accuracy / 5);
+	m_pStartPosition->x = Config::GetInstance().GetWindowSizeWidth() * position;
 	m_pStartPosition->y = 0;
 	m_AnimationSpeed = 0.15f;
 	m_KeyFrameDuration = 0.f;
@@ -31,7 +31,6 @@ Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, std::vector
 	m_SpeedY = 0;
 
 	m_DetectionRadius = detectionRadius * SCALE;
-	m_Accuracy = accuracy * SCALE;
 
 	m_pWeaponSprite->setTextureRect(sf::IntRect(0, 0, m_pWeaponSprite->getGlobalBounds().width, m_pWeaponSprite->getGlobalBounds().height));
 	m_pWeaponSprite->setOrigin(sf::Vector2f(m_pWeaponSprite->getGlobalBounds().width / 2, m_pWeaponSprite->getGlobalBounds().height / 2));
@@ -81,7 +80,7 @@ void Enemy::AimForPlayer(int playerX, int playerY)
 	{
 		if (m_Shoot)
 		{
-			Shoot();
+			//Shoot();
 			m_LastDistance = 0;
 			m_SecondLastDistance = 0;
 			m_LastAngle = 2;

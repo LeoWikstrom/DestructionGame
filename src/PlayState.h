@@ -32,6 +32,7 @@ private:
 	bool m_WasLeftPressed;
 	bool m_WasDownPressed;
 	bool m_WasRightPressed;
+	bool m_WasTerrainGenerated;
 	std::vector<Enemy*> m_Enemies;
 	float m_CameraOffset;
 	float m_nextTerrainUpdate;

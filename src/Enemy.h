@@ -6,7 +6,6 @@ class Enemy : public Character
 {
 private:
 	int m_DetectionRadius;
-	int m_Accuracy;
 	int m_FullHealth;
 	bool m_RotateDown;
 	float m_LastDistance;
