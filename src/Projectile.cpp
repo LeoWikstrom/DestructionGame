@@ -1,8 +1,10 @@
 #include "Projectile.h"
 #include "Config.h"
 #include <SFML/Graphics.hpp>
+#include <iostream>
+#include "Explosion.h"
 
-Projectile::Projectile(const char * texturePath, int damage, int power) : Entity(texturePath), m_pTerrainImage(nullptr)
+Projectile::Projectile(const char * texturePath, std::vector<Explosion*>* explosions, int damage, int power) : Entity(texturePath), m_pExplosions(explosions), m_pTerrainImage(nullptr)
 {
 	m_Damage = damage;
 	m_Power = power;
@@ -35,11 +37,11 @@ Projectile::Projectile(const char * texturePath, int damage, int power) : Entity
 
 Projectile::~Projectile()
 {
-	while (!m_Explosions.empty())
-	{
-		delete m_Explosions.back();
-		m_Explosions.pop_back();
-	}
+	//while (!m_Explosions.empty())
+	//{
+	//	delete m_Explosions.back();
+	//	m_Explosions.pop_back();
+	//}
 }
 
 void Projectile::SetRotation(float angle)
@@ -70,104 +72,6 @@ bool Projectile::IsShooting()
 	return m_Shooting;
 }
 
-void Projectile::UpdateExplosion(float dt)
-{
-	if (!m_Explosions.empty())
-	{
-		std::vector<unsigned int> toDelete;
-		sf::RenderTexture renderTex;
-		sf::Texture texture;
-		sf::Sprite sprite;
-		texture.loadFromImage(*m_pTerrainImage);
-		sprite.setTexture(texture);
-		m_pSprite->setTextureRect(sf::IntRect(0, 0, Config::GetInstance().GetWindowSizeWidth() * 2, Config::GetInstance().GetWindowSizeHeight()));
-		renderTex.create(Config::GetInstance().GetWindowSizeWidth() * 2, Config::GetInstance().GetWindowSizeHeight());
-		renderTex.clear();
-		renderTex.draw(sprite);
-
-		for (int i = 0; i < m_Explosions.size(); ++i)
-		{
-			int height = Config::GetInstance().GetWindowSizeHeight(),
-				width = Config::GetInstance().GetWindowSizeWidth();
-			sf::Color colourCenter;
-			if (m_Explosions[i]->y >= 0 && m_Explosions[i]->y < height)
-			{
-				colourCenter = m_pTerrainImage->getPixel(m_Explosions[i]->x, m_Explosions[i]->y);
-			}
-			sf::CircleShape explosion(m_Damage);
-			explosion.setFillColor(sf::Color(0, 255, 255, 2500*dt));
-			explosion.setOrigin(m_Damage, m_Damage);
-			if (colourCenter.r == 255)
-			{
-				explosion.setRadius(5);
-				explosion.setFillColor(sf::Color(254, 0, 0));
-				explosion.setOrigin(5, 5);
-			}
-
-			explosion.setPointCount(40);
-			explosion.setPosition(*m_Explosions[i]);
-			renderTex.draw(explosion);
-			int pointCount = explosion.getPointCount();
-			float	circleUp = m_Explosions[i]->y - (m_Damage - 1),
-					circleRight = m_Explosions[i]->x + (m_Damage - 1),
-					circleDown = m_Explosions[i]->y + (m_Damage - 1),
-					circleLeft = m_Explosions[i]->x - (m_Damage - 1);
-			sf::Color colourUp = sf::Color(0, 0, 0, 0);
-			if (circleUp >= 0 && circleUp < height && m_Explosions[i]->x >= 0 /*&& m_Explosions[i]->x < width*/)
-			{
-				colourUp = m_pTerrainImage->getPixel(m_Explosions[i]->x, circleUp);
-			}
-			sf::Color colourRight;
-			if (circleRight >= 0 /*&& circleRight < width*/ && m_Explosions[i]->y >= 0 && m_Explosions[i]->y < height)
-			{
-				colourRight = m_pTerrainImage->getPixel(circleRight, m_Explosions[i]->y);
-			}
-			sf::Color colourDown;
-			if (circleDown >= 0 && circleDown < height && m_Explosions[i]->x >= 0 /*&& m_Explosions[i]->x < width*/)
-			{
-				colourDown = m_pTerrainImage->getPixel(m_Explosions[i]->x, circleDown);
-			}
-			sf::Color colourLeft;
-			if (circleLeft >= 0 /*&& circleLeft < width*/ && m_Explosions[i]->y >= 0 && m_Explosions[i]->y < height)
-			{
-				colourLeft = m_pTerrainImage->getPixel(circleLeft, m_Explosions[i]->y);
-			}
-
-			if ((colourUp.g >= 250 || colourUp.a == 0) && (colourRight.g >= 250 || colourRight.a == 0) && (colourDown.g >= 250 || colourDown.a == 0) && (colourLeft.g >= 250 ||colourLeft.a == 0) && (colourCenter.g >= 250 || colourCenter.a == 0))
-			{
-				explosion.setFillColor(SKY_COLOUR);
-			}
-			renderTex.draw(explosion);
-
-			if ((colourUp == SKY_COLOUR || colourUp.a == 0) && (colourRight == SKY_COLOUR || colourRight.a == 0) && (colourDown == SKY_COLOUR || colourDown.a == 0) && (colourLeft == SKY_COLOUR || colourLeft.a == 0) && (colourCenter == SKY_COLOUR || colourCenter.a == 0) && explosion.getFillColor() == SKY_COLOUR)
-			{
-				//delete m_Explosions[i];
-				//m_Explosions.erase(m_Explosions.begin() + i);
-				//i = -1;
-
-				toDelete.push_back(i);
-			}
-
-			//printf("colourUp %d\ncolourRight %d\ncolourDown %d\ncolourLeft %d\ncolourCenter %d\ncolourExplosion %d\n\n", colourUp.r, colourRight.r, colourDown.r, colourLeft.r, colourCenter.r, explosion.getFillColor().r);
-		}
-
-		for (int i = toDelete.size() - 1; i >=0; i--)
-		{
-			delete m_Explosions[toDelete[i]];
-			m_Explosions.erase(m_Explosions.begin() + toDelete[i]);
-		}
-
-		renderTex.display();
-
-		*m_pTerrainImage = renderTex.getTexture().copyToImage();
-	}
-}
-
-bool Projectile::IsExplosion()
-{
-	return !m_Explosions.empty();
-}
-
 void Projectile::Move(float dt)
 {
 	m_SpeedY += 9.81 * 20 * SCALE * dt;
@@ -185,75 +89,10 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 			if (terrain->getPixel(i, std::max(m_TopBound, 0)) == GROUND_COLOUR)
 			{
 				m_Shooting = false;
-				m_Explosions.push_back(new sf::Vector2f(m_pSprite->getPosition() + sf::Vector2f(m_OffsetBounds, 0)));
-
-				sf::CircleShape explosions;
-				sf::RenderTexture renderTex;
-				sf::Texture texture;
-				sf::Sprite sprite;
-
-				texture.loadFromImage(*terrain);
-				sprite.setTexture(texture);
-				m_pSprite->setTextureRect(sf::IntRect(0, 0, Config::GetInstance().GetWindowSizeWidth() * 2, Config::GetInstance().GetWindowSizeHeight()));
-				renderTex.create(Config::GetInstance().GetWindowSizeWidth() * 2, Config::GetInstance().GetWindowSizeHeight());
-				renderTex.clear();
-				renderTex.draw(sprite);
-				int radDecrease = m_Damage / 10;
-				for (int i = 0; i < 10; ++i)
-				{
-					explosions = sf::CircleShape();
-					explosions.setRadius(m_Damage - radDecrease * i);
-					explosions.setFillColor(sf::Color(165 + 10 * i, 0, 0));
-					explosions.setOrigin(m_Damage - radDecrease * i, m_Damage - radDecrease * i);
-					explosions.setPosition(m_pSprite->getPosition() + sf::Vector2f(m_OffsetBounds, 0));
-					explosions.setPointCount(40);
-					renderTex.draw(explosions);
-				}
-				//printf("Explosion top/bottom position: %f, %f\n", explosions.getPosition().x, explosions.getPosition().y);
-
-				renderTex.display();
-
-				*terrain = renderTex.getTexture().copyToImage();
+				m_pExplosions->push_back(new Explosion(m_pSprite->getPosition().x + m_pSprite->getGlobalBounds().width / 2, m_pSprite->getPosition().y + m_pSprite->getGlobalBounds().height / 2, m_Damage));
 				return true;
 			}
 		}
-
-		/*for (int j = m_BottomBound; j >= std::max(m_TopBound, 0); --j)
-		{
-			if (terrain->getPixel(m_LeftBound, j) == GROUND_COLOUR || terrain->getPixel(m_RightBound, j) == GROUND_COLOUR)
-			{
-				m_Shooting = false;
-				m_Explosions.push_back(new sf::Vector2f(m_pSprite->getPosition() + sf::Vector2f(m_OffsetBounds, 0)));
-
-				sf::CircleShape explosions;
-				sf::RenderTexture renderTex;
-				sf::Texture texture;
-				sf::Sprite sprite;
-
-				texture.loadFromImage(*terrain);
-				sprite.setTexture(texture);
-				m_pSprite->setTextureRect(sf::IntRect(0, 0, Config::GetInstance().GetWindowSizeWidth() * 2, Config::GetInstance().GetWindowSizeHeight()));
-				renderTex.create(Config::GetInstance().GetWindowSizeWidth() * 2, Config::GetInstance().GetWindowSizeHeight());
-				renderTex.clear();
-				renderTex.draw(sprite);
-				int radDecrease = m_Damage / 10;
-				for (int i = 0; i < 10; ++i)
-				{
-					explosions.setRadius(m_Damage - radDecrease * i);
-					explosions.setFillColor(sf::Color(165 + 10 * i, 0, 0));
-					explosions.setOrigin(m_Damage - radDecrease * i, m_Damage - radDecrease * i);
-					explosions.setPosition(m_pSprite->getPosition() + sf::Vector2f(m_OffsetBounds, 0));
-					explosions.setPointCount(40);
-					renderTex.draw(explosions);
-				}
-				printf("Explosion side position: %f, %f\n", explosions.getPosition().x, explosions.getPosition().y);
-
-				renderTex.display();
-
-				*terrain = renderTex.getTexture().copyToImage();
-				return true;
-			}
-		}*/
 	}
 
 	return false;

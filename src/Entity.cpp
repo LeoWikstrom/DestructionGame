@@ -41,6 +41,11 @@ const sf::Vector2f Entity::GetPosition()
 	return m_pSprite->getPosition();
 }
 
+const sf::Vector2f Entity::GetPositionMiddle()
+{
+	return m_pSprite->getPosition() + sf::Vector2f(m_pSprite->getGlobalBounds().width / 2, m_pSprite->getGlobalBounds().height / 2);
+}
+
 void Entity::SetPosition(int x, int y)
 {
 	m_pSprite->setPosition(x, y);

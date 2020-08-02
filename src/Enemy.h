@@ -14,7 +14,7 @@ private:
 	float m_LastAngle;
 	bool m_Shoot;
 public:
-	Enemy(const char* texturePath, const char* weaponTexturePath, int detectionRadius, int accuracy, int health);
+	Enemy(const char* texturePath, const char* weaponTexturePath, std::vector<Explosion*>* explosions, int detectionRadius, int accuracy, int health);
 	~Enemy();
 
 	void CheckForPlayer(int playerX, int playerY);

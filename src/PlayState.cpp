@@ -8,11 +8,12 @@
 #include <iostream>
 #include "Score.h"
 #include "GameOverState.h"
+#include "Explosion.h"
 
 PlayState::PlayState(Game * game, sf::Font* font) : GameState(game), m_pTerrain(new Terrain()), m_CameraOffset(0.f), m_nextTerrainUpdate(Config::GetInstance().GetWindowSizeWidth() * 3 / 2), m_pLifeTex(new sf::Texture()), m_pVisScore(new sf::Text()), m_pFont(font)
 {
 
-	m_pPlayer = new Player("..\\resources\\player.png", "..\\resources\\gun_player.png");
+	m_pPlayer = new Player("..\\resources\\player.png", "..\\resources\\gun_player.png", &m_Explosions);
 
 	m_pTerrain->InitTerrain(200 * SCALE, 200 * SCALE, Config::GetInstance().GetWindowSizeHeight(), 0, Config::GetInstance().GetWindowSizeWidth(), 50 * SCALE, 4);
 	m_pTerrain->GenSecondTerrain(rand() % (Config::GetInstance().GetWindowSizeHeight() - 100 * SCALE) + 50 * SCALE, Config::GetInstance().GetWindowSizeHeight(), 0, 50 * SCALE, 4);
@@ -30,9 +31,9 @@ PlayState::PlayState(Game * game, sf::Font* font) : GameState(game), m_pTerrain(
 
 	for (int i = 0; i < 3; ++i)
 	{
-		char path[] = "..\\resources\\blobert1.png";
-		path[20] = i + 49;
-		m_Enemies.push_back(new Enemy(path, "..\\resources\\gun_small.png", 200 + 25 * i, 5 * (i + 1), i + 1));
+		//char path[] = "..\\resources\\blobert1.png";
+		//path[20] = i + 49;
+		//m_Enemies.push_back(new Enemy(path, "..\\resources\\gun_small.png", &m_Explosions, 200 + 25 * i, 5 * (i + 1), i + 1));
 	}
 
 	//sf::Image terrain = m_pTerrain->GetTerrain();
@@ -48,6 +49,7 @@ PlayState::PlayState(Game * game, sf::Font* font) : GameState(game), m_pTerrain(
 	}
 
 	m_pVisScore->setFont(*m_pFont);
+
 }
 
 PlayState::~PlayState()
@@ -67,6 +69,13 @@ PlayState::~PlayState()
 		delete m_Enemies[i];
 	}
 	m_Enemies.clear();
+
+	for (int i = 0; i < m_Explosions.size(); i++)
+	{
+		delete m_Explosions[i];
+	}
+	m_Explosions.clear();
+
 
 	delete m_pVisScore;
 }
@@ -232,14 +241,14 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 	bool isEnemyCollision = false;
 	for (int i = 0; i < m_Enemies.size(); ++i)
 	{
-		isEnemyCollision = m_Enemies[i]->CheckTerrainCollision(&m_pTerrain->GetTerrain()) || m_Enemies[i]->IsExplosion();
+		isEnemyCollision = m_Enemies[i]->CheckTerrainCollision(&m_pTerrain->GetTerrain());
 		if (isEnemyCollision)
 		{
 			break;
 		}
 	}
 
-	if (m_pPlayer->CheckTerrainCollision(&m_pTerrain->GetTerrain()) || m_pPlayer->IsExplosion() || isEnemyCollision)
+	if (m_pPlayer->CheckTerrainCollision(&m_pTerrain->GetTerrain()) || isEnemyCollision)
 	{
 		m_pTerrain->Update();
 	}
@@ -251,6 +260,19 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 		m_Enemies[i]->CheckTerrainCollision(&m_pTerrain->GetTerrain());
 	}
 
+	std::vector<unsigned int> expToRemove;
+	for (unsigned int i = 0; i < m_Explosions.size(); i++)
+	{
+		m_Explosions[i]->Update(dt, window);
+		if (!m_Explosions[i]->ShouldLive())
+			expToRemove.push_back(i);
+	}
+
+	for (int i = expToRemove.size() - 1; i >= 0; i--)
+	{
+		delete m_Explosions[expToRemove[i]];
+		m_Explosions.erase(m_Explosions.begin() + expToRemove[i]);
+	}
 
 	// CameraControl
 	m_CameraOffset = m_pPlayer->GetPosition().x > m_CameraOffset ? m_pPlayer->GetPosition().x : m_CameraOffset;
@@ -291,7 +313,7 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 	//for (int i = enemiesToDelete.size() - 1; i >= 0; i--)
 	//{
 		//m_Enemies.erase(m_Enemies.begin() + enemiesToDelete[i]);
-		std::rotate(m_Enemies.begin(), m_Enemies.begin() + enemiesToDelete.size(), m_Enemies.end());
+		//std::rotate(m_Enemies.begin(), m_Enemies.begin() + enemiesToDelete.size(), m_Enemies.end());
 	//}
 
 	if (m_pPlayer->GetCurrentHealth() == 0 && !m_pPlayer->IsExploded())
@@ -312,6 +334,11 @@ void PlayState::Render(sf::RenderWindow * window)
 		m_Enemies[i]->Render(window);
 	}
 	m_pPlayer->Render(window);
+
+	for (int i = 0; i < m_Explosions.size(); i++)
+	{
+		m_Explosions[i]->Render(window);
+	}
 
 	for (unsigned int i = 0; i < m_pPlayer->GetCurrentHealth(); i++)
 	{

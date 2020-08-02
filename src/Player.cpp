@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <stdio.h>
 
-Player::Player(const char* texturePath, const char* weaponTexturePath) : Character(texturePath, weaponTexturePath, 3), m_pCoverSprite(new sf::Sprite), m_pCoverTex(new sf::Texture)
+Player::Player(const char* texturePath, const char* weaponTexturePath, std::vector<Explosion*>* explosions) : Character(texturePath, weaponTexturePath, explosions, 3), m_pCoverSprite(new sf::Sprite), m_pCoverTex(new sf::Texture)
 {
 	m_pKeyFrameSize->x = 26;
 	m_pKeyFrameSize->y = 25;
@@ -51,7 +51,7 @@ Player::Player(const char* texturePath, const char* weaponTexturePath) : Charact
 
 	m_IsHurt = false;
 
-	m_Projectiles.push(new Projectile("..\\resources\\projectile.png", 50 * SCALE, 300 * SCALE));
+	m_Projectiles.push(new Projectile("..\\resources\\projectile.png", m_pExplosions, 50 * SCALE, 300 * SCALE));
 }
 
 Player::~Player()
@@ -152,10 +152,6 @@ void Player::Update(float dt, sf::RenderWindow * window, float offset)
 	else
 	{
 		m_Projectiles.front()->Update(dt, window, offset);
-	}
-	if (m_Projectiles.front()->IsExplosion())
-	{
-		m_Projectiles.front()->UpdateExplosion(dt);
 	}
 
 	if (m_WalkingSpeed != 0)

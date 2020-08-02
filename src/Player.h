@@ -2,6 +2,7 @@
 #define PLAYER_H
 #include "Character.h"
 
+
 class Player : public Character
 {
 private:
@@ -11,7 +12,7 @@ private:
 	bool m_ShowWeapon;
 	bool m_IsHurt;
 public:
-	Player(const char* texturePath, const char* weaponTexturePath);
+	Player(const char* texturePath, const char* weaponTexturePath, std::vector<Explosion*>* explosions);
 	~Player();
 
 	void SetWalkingSpeed(int speed);

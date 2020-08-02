@@ -15,7 +15,7 @@ class Game;
 class Player;
 class Terrain;
 class Enemy;
-
+class Explosion;
 class PlayState : public GameState
 {
 private:
@@ -40,6 +40,8 @@ private:
 	sf::Texture* m_pLifeTex;
 
 	sf::Text* m_pVisScore;
+
+	std::vector<Explosion*> m_Explosions;
 
 public:
 	PlayState(Game* game, sf::Font* font);

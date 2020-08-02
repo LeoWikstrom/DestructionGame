@@ -46,6 +46,7 @@ public:
 	virtual void Move(float dt);
 	virtual bool CheckTerrainCollision(sf::Image* terrain);
 	virtual const sf::Vector2f GetPosition();
+	virtual const sf::Vector2f GetPositionMiddle();
 	virtual void SetPosition(int x, int y);
 	virtual void SetPosition(sf::Vector2f position);
 	virtual void UpdateBounds();

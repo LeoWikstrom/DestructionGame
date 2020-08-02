@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <stdio.h>
 
-Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, int detectionRadius, int accuracy, int health) : Character(texturePath, weaponTexturePath, health)
+Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, std::vector<Explosion*>* explosions, int detectionRadius, int accuracy, int health) : Character(texturePath, weaponTexturePath, explosions, health)
 {
 	m_pKeyFrameSize->x = 16;
 	m_pKeyFrameSize->y = 16;
@@ -44,7 +44,7 @@ Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, int detecti
 
 	m_FullHealth = health;
 
-	m_Projectiles.push(new Projectile("..\\resources\\projectile.png", (-175 * SCALE + m_DetectionRadius), (100 * SCALE + m_DetectionRadius) / 2));
+	m_Projectiles.push(new Projectile("..\\resources\\projectile.png", m_pExplosions, (-175 * SCALE + m_DetectionRadius), (100 * SCALE + m_DetectionRadius) / 2));
 	m_Projectiles.front()->SetDirection(-1);
 
 	m_RotateDown = true;
@@ -189,10 +189,6 @@ void Enemy::Update(float dt, sf::RenderWindow * window, float offset)
 	else
 	{
 		m_Projectiles.front()->Update(dt, window, offset);
-	}
-	if (m_Projectiles.front()->IsExplosion())
-	{
-		m_Projectiles.front()->UpdateExplosion(dt);
 	}
 
 	if ((m_SpeedX != 0 || m_SpeedY == 0) && m_WalkingSpeed != 0)
