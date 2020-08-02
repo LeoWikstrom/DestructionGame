@@ -2,7 +2,8 @@
 #include <SFML/Graphics.hpp>
 #include "Character.h"
 #include "Config.h"
-Explosion::Explosion(float x, float y, float radius):m_Rad(radius), m_Ttl(1.0f), m_pTex(new sf::Texture()), m_pSpr(new sf::Sprite())
+#include "Terrain.h"
+Explosion::Explosion(float x, float y, float radius):m_Rad(radius), m_Ttl(1.0f), m_pTex(new sf::Texture()), m_pSpr(new sf::Sprite()), m_Exploded(false)
 {
 	m_pTex->loadFromFile("..\\resources\\explosion.png");
 	m_pSpr->setTexture(*m_pTex);
@@ -51,4 +52,27 @@ bool Explosion::CheckCollision(Character* character)
 bool Explosion::ShouldLive()
 {
 	return m_Ttl > 0.0f;
+}
+
+void Explosion::ClearTerrain(sf::Image* terrain, float offset)
+{
+	if (!m_Exploded)
+	{
+		m_Exploded = true;
+		sf::CircleShape shape;
+		shape.setRadius(m_Rad);
+		shape.setPosition(m_pSpr->getPosition() - sf::Vector2f(offset + 5, 5));
+		shape.setFillColor(SKY_COLOUR);
+		sf::RenderTexture rTex;
+		rTex.create(terrain->getSize().x, terrain->getSize().y);
+		sf::Texture tex;
+		tex.loadFromImage(*terrain);
+		sf::Sprite spr;
+		spr.setTexture(tex);
+		spr.setPosition(sf::Vector2f(offset, 0));
+		rTex.draw(spr);
+		rTex.draw(shape);
+		*terrain = rTex.getTexture().copyToImage();
+		terrain->flipVertically();
+	}
 }

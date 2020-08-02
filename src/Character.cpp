@@ -195,7 +195,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 	{
 		if ((*m_pExplosions)[i]->CheckCollision(this))
 		{
-			bool hej = true;
+			//(*m_pExplosions)[i]->ClearTerrain(terrain, );
 		}
 	}
 

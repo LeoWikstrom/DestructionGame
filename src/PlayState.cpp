@@ -31,9 +31,9 @@ PlayState::PlayState(Game * game, sf::Font* font) : GameState(game), m_pTerrain(
 
 	for (int i = 0; i < 3; ++i)
 	{
-		//char path[] = "..\\resources\\blobert1.png";
-		//path[20] = i + 49;
-		//m_Enemies.push_back(new Enemy(path, "..\\resources\\gun_small.png", &m_Explosions, 200 + 25 * i, 5 * (i + 1), i + 1));
+		char path[] = "..\\resources\\blobert1.png";
+		path[20] = i + 49;
+		m_Enemies.push_back(new Enemy(path, "..\\resources\\gun_small.png", &m_Explosions, 200 + 25 * i, 5 * (i + 1), i + 1));
 	}
 
 	//sf::Image terrain = m_pTerrain->GetTerrain();
@@ -313,7 +313,7 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 	//for (int i = enemiesToDelete.size() - 1; i >= 0; i--)
 	//{
 		//m_Enemies.erase(m_Enemies.begin() + enemiesToDelete[i]);
-		//std::rotate(m_Enemies.begin(), m_Enemies.begin() + enemiesToDelete.size(), m_Enemies.end());
+		std::rotate(m_Enemies.begin(), m_Enemies.begin() + enemiesToDelete.size(), m_Enemies.end());
 	//}
 
 	if (m_pPlayer->GetCurrentHealth() == 0 && !m_pPlayer->IsExploded())

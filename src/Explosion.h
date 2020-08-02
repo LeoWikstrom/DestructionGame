@@ -7,6 +7,7 @@ namespace sf
 	class Sprite;
 	class RenderWindow;
 	class CircleShape;
+	class Image;
 }
 
 class Character;
@@ -17,6 +18,7 @@ private:
 	float m_Ttl;
 	sf::Texture* m_pTex;
 	sf::Sprite* m_pSpr;
+	bool m_Exploded;
 public:
 	Explosion(float x, float y, float radius);
 	~Explosion();
@@ -24,6 +26,7 @@ public:
 	void Render(sf::RenderWindow* window);
 	bool CheckCollision(Character* character);
 	bool ShouldLive();
+	void ClearTerrain(sf::Image* terrain, float offset);
 };
 
 

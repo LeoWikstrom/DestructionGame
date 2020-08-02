@@ -206,3 +206,8 @@ void Terrain::Render(sf::RenderWindow* window)
 	window->draw(*m_pSprite);
 	//window->draw(*m_pSecSprite);
 }
+
+void Terrain::Render(sf::RenderTexture* tex)
+{
+	tex->draw(*m_pSprite);
+}

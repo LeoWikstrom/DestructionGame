@@ -90,6 +90,7 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 			{
 				m_Shooting = false;
 				m_pExplosions->push_back(new Explosion(m_pSprite->getPosition().x + m_pSprite->getGlobalBounds().width / 2, m_pSprite->getPosition().y + m_pSprite->getGlobalBounds().height / 2, m_Damage));
+				(*m_pExplosions)[m_pExplosions->size() - 1]->ClearTerrain(terrain, m_OffsetBounds);
 				return true;
 			}
 		}
