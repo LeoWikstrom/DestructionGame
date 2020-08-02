@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <algorithm>
 
-Character::Character(const char * texturePath, const char * weaponTexturePath, unsigned int health) : Entity(texturePath), m_pWeaponTex(new sf::Texture), m_pWeaponSprite(new sf::Sprite), m_MaxHealth(health), m_CurrentHealth(health), m_Invoulnerable(false)
+Character::Character(const char * texturePath, const char * weaponTexturePath, unsigned int health) : Entity(texturePath), m_pWeaponTex(new sf::Texture), m_pWeaponSprite(new sf::Sprite), m_MaxHealth(health), m_CurrentHealth(health), m_Invulnerable(false)
 {
 	m_pWeaponTex->loadFromFile(weaponTexturePath);
 	m_pWeaponSprite->setTexture(*m_pWeaponTex);
@@ -12,9 +12,7 @@ Character::Character(const char * texturePath, const char * weaponTexturePath, u
 	m_Falling = false;
 	m_FallingTime = 0;
 
-	m_Weight = 1;
-
-	m_Projectiles.push(new Projectile("..\\resources\\projectile.png", 50 * SCALE, 300 * SCALE));
+	m_Weight = 2;
 
 	m_Exploded = false;
 }
@@ -65,7 +63,7 @@ void Character::Move(float dt)
 bool Character::CheckTerrainCollision(sf::Image * terrain)
 {
 	m_Falling = true;
-	if (m_BottomBound < Config::GetInstance().GetWindowSizeHeight())
+	if (m_BottomBound < Config::GetInstance().GetWindowSizeHeight() && m_TopBound > 0)
 	{
 		int redDown = 0;
 		int redUp = 0;
@@ -217,14 +215,14 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 		}
 	}
 
-	if (m_Exploded && !m_Invoulnerable)
+	if (m_Exploded && !m_Invulnerable)
 	{
 		m_CurrentHealth = m_CurrentHealth > 0 ? m_CurrentHealth - 1 : 0;
-		m_Invoulnerable = true;
+		m_Invulnerable = true;
 	}
-	else if (!m_Exploded && m_Invoulnerable)
+	else if (!m_Exploded && m_Invulnerable)
 	{
-		m_Invoulnerable = false;
+		m_Invulnerable = false;
 	}
 
 	if (m_Projectiles.front()->IsShooting())
@@ -235,6 +233,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 	{
 		return false;
 	}
+
 }
 
 void Character::RotateWeapon(bool direction)

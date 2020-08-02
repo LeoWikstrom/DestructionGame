@@ -178,11 +178,11 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 {
 	m_pTerrainImage = terrain;
 
-	if (m_BottomBound < Config::GetInstance().GetWindowSizeHeight())
+	if (m_BottomBound < Config::GetInstance().GetWindowSizeHeight() && m_BottomBound >= 0)
 	{
 		for (int i = m_LeftBound; i <= m_RightBound; ++i)
 		{
-			if (terrain->getPixel(i, m_BottomBound) == GROUND_COLOUR || terrain->getPixel(i, m_TopBound) == GROUND_COLOUR)
+			if (terrain->getPixel(i, std::max(m_TopBound, 0)) == GROUND_COLOUR)
 			{
 				m_Shooting = false;
 				m_Explosions.push_back(new sf::Vector2f(m_pSprite->getPosition() + sf::Vector2f(m_OffsetBounds, 0)));
@@ -209,7 +209,7 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 					explosions.setPointCount(40);
 					renderTex.draw(explosions);
 				}
-				printf("Explosion position: %f, %f\n", explosions.getPosition().x, explosions.getPosition().y);
+				//printf("Explosion top/bottom position: %f, %f\n", explosions.getPosition().x, explosions.getPosition().y);
 
 				renderTex.display();
 
@@ -218,7 +218,7 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 			}
 		}
 
-		for (int j = m_BottomBound; j >= m_TopBound; --j)
+		/*for (int j = m_BottomBound; j >= std::max(m_TopBound, 0); --j)
 		{
 			if (terrain->getPixel(m_LeftBound, j) == GROUND_COLOUR || terrain->getPixel(m_RightBound, j) == GROUND_COLOUR)
 			{
@@ -246,20 +246,20 @@ bool Projectile::CheckTerrainCollision(sf::Image * terrain)
 					explosions.setPointCount(40);
 					renderTex.draw(explosions);
 				}
-				printf("Explosion position: %f, %f\n", explosions.getPosition().x, explosions.getPosition().y);
+				printf("Explosion side position: %f, %f\n", explosions.getPosition().x, explosions.getPosition().y);
 
 				renderTex.display();
 
 				*terrain = renderTex.getTexture().copyToImage();
 				return true;
 			}
-		}
+		}*/
 	}
 
 	return false;
 }
 
-void Projectile::Update(float dt, sf::RenderWindow * window)
+void Projectile::Update(float dt, sf::RenderWindow * window, float offset)
 {
 	sf::Vector2f pos1 = m_pSprite->getPosition();
 	Move(dt);
@@ -279,7 +279,7 @@ void Projectile::Update(float dt, sf::RenderWindow * window)
 	}
 	m_pSprite->setTextureRect(sf::IntRect(m_pCurrentKeyFrame->x * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
 
-	if (m_pSprite->getPosition().y > Config::GetInstance().GetWindowSizeHeight())
+	if (m_pSprite->getPosition().y > Config::GetInstance().GetWindowSizeHeight() || m_RightBound < (int)(offset - (Config::GetInstance().GetWindowSizeWidth() / 2)) + m_OffsetBounds || m_LeftBound > (int)(offset + (Config::GetInstance().GetWindowSizeWidth() * 3 / 2)) + m_OffsetBounds - m_Damage)
 	{
 		m_Shooting = false;
 	}

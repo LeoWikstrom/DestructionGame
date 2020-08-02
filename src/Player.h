@@ -19,7 +19,7 @@ public:
 	void Jump();
 	bool IsWeaponOut();
 
-	virtual void Update(float dt, sf::RenderWindow* window);
+	virtual void Update(float dt, sf::RenderWindow* window, float offset);
 	virtual void Render(sf::RenderWindow* window);
 };
 

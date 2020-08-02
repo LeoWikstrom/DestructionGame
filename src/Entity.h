@@ -51,7 +51,7 @@ public:
 	virtual void UpdateBounds();
 	virtual void OffsetBounds();
 
-	virtual void Update(float dt, sf::RenderWindow* window) = 0;
+	virtual void Update(float dt, sf::RenderWindow* window, float offset) = 0;
 	virtual void Render(sf::RenderWindow* window) = 0;
 
 };

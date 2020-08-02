@@ -16,7 +16,7 @@ Player::Player(const char* texturePath, const char* weaponTexturePath) : Charact
 	m_pCurrentKeyFrame->x = 5;
 	m_pCurrentKeyFrame->y = 0;
 	m_pStartPosition->x = Config::GetInstance().GetWindowSizeWidth() / 2;
-	m_pStartPosition->y = 200 * SCALE;
+	m_pStartPosition->y = 0;
 	m_AnimationSpeed = 0.15f;
 	m_KeyFrameDuration = 0.15f;
 
@@ -50,6 +50,8 @@ Player::Player(const char* texturePath, const char* weaponTexturePath) : Charact
 	m_Weight = 2;
 
 	m_IsHurt = false;
+
+	m_Projectiles.push(new Projectile("..\\resources\\projectile.png", 50 * SCALE, 300 * SCALE));
 }
 
 Player::~Player()
@@ -95,7 +97,7 @@ void Player::Jump()
 {
 	if (!IsInAir())
 	{
-		m_SpeedY = -100 * SCALE;
+		m_SpeedY = -125 * SCALE;
 		ShowWeapon(false);
 		m_WalkingSpeed = 50 * SCALE * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
 		m_Jumping = true;
@@ -108,27 +110,33 @@ bool Player::IsWeaponOut()
 	return m_ShowWeapon;
 }
 
-void Player::Update(float dt, sf::RenderWindow * window)
+void Player::Update(float dt, sf::RenderWindow * window, float offset)
 {
 	if (IsInAir())
 	{
 		ShowWeapon(false);
 	}
-	if (m_WalkingSpeed > 0)
+	if (m_WalkingSpeed > 0 && !m_Exploded)
 	{
 		if (m_pCurrentKeyFrame->y == 1)
 		{
 			m_pWeaponSprite->setRotation(m_WeaponAngle);
-			m_Projectiles.front()->SetDirection(1);
+			if (!m_Projectiles.front()->IsShooting())
+			{
+				m_Projectiles.front()->SetDirection(1);
+			}
 		}
 		m_pCurrentKeyFrame->y = 0;
 	}
-	else if (m_WalkingSpeed < 0)
+	else if (m_WalkingSpeed < 0 && !m_Exploded)
 	{
 		if (m_pCurrentKeyFrame->y == 0)
 		{
 			m_pWeaponSprite->setRotation(360 - m_WeaponAngle);
-			m_Projectiles.front()->SetDirection(-1);
+			if (!m_Projectiles.front()->IsShooting())
+			{
+				m_Projectiles.front()->SetDirection(-1);
+			}
 		}
 		m_pCurrentKeyFrame->y = 1;
 	}
@@ -139,10 +147,11 @@ void Player::Update(float dt, sf::RenderWindow * window)
 	if (!m_Projectiles.front()->IsShooting())
 	{
 		m_Projectiles.front()->SetPosition(m_pWeaponSprite->getPosition().x, m_pWeaponSprite->getPosition().y - 5 * SCALE);
+		m_Projectiles.front()->SetDirection(-(m_pCurrentKeyFrame->y * 2 - 1));
 	}
 	else
 	{
-		m_Projectiles.front()->Update(dt, window);
+		m_Projectiles.front()->Update(dt, window, offset);
 	}
 	if (m_Projectiles.front()->IsExplosion())
 	{
@@ -173,12 +182,18 @@ void Player::Update(float dt, sf::RenderWindow * window)
 		if (m_pCurrentKeyFrame->y == 0)
 		{
 			m_pWeaponSprite->setRotation(m_WeaponAngle);
-			m_Projectiles.front()->SetDirection(1);
+			if (!m_Projectiles.front()->IsShooting())
+			{
+				m_Projectiles.front()->SetDirection(1);
+			}
 		}
 		if (m_pCurrentKeyFrame->y == 1)
 		{
 			m_pWeaponSprite->setRotation(360 - m_WeaponAngle);
-			m_Projectiles.front()->SetDirection(-1);
+			if (!m_Projectiles.front()->IsShooting())
+			{
+				m_Projectiles.front()->SetDirection(-1);
+			}
 		}
 	}
 	else if (m_IsHurt)
@@ -201,15 +216,21 @@ void Player::Update(float dt, sf::RenderWindow * window)
 		m_pCoverSprite->setTextureRect(sf::IntRect(0 * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
 	}
 
-	if (m_LeftBound < 0)
+	if (m_LeftBound < (int)(offset - (Config::GetInstance().GetWindowSizeWidth() / 2)) + m_OffsetBounds)
 	{
 		m_SpeedX *= -0.25 * SCALE;
 		Move(dt);
 		if (abs(m_WalkingSpeed) > 0)
 		{
-			m_pSprite->move(20 * dt, 0);
+			m_pSprite->move(20 * SCALE * dt, 0);
+			m_pWeaponSprite->move(20 * SCALE * dt, 0);
 			UpdateBounds();
 		}
+	}
+	if (m_TopBound > Config::GetInstance().GetWindowSizeHeight())
+	{
+		m_CurrentHealth = 0;
+		m_Exploded = false;
 	}
 }
 
