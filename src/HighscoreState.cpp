@@ -8,6 +8,7 @@ HighscoreState::HighscoreState(Game* game, sf::Font* font): GameState(game), m_p
 	for (int i = 0; i < 5; i++)
 	{
 		std::string tmp = Highscore::GetName(i);
+		tmp = tmp.substr(0, 3);
 		tmp.append(": ");
 		tmp.append(std::to_string(Highscore::GetScore(i)));
 		m_pEntries[i].setString(tmp);

@@ -20,7 +20,6 @@ public:
 	void SaveScores();
 
 	static bool EvaluateScore(unsigned int score);
-	static void AddScore(Scoring entry);
 	static void AddScore(const char* name, unsigned int score);
 
 	static const char* GetName(unsigned int entry);

@@ -5,30 +5,30 @@ Highscore::Highscore()
 {
     if (!LoadScores())
     {
-        m_pScores[0].name[0] = 'a';
-        m_pScores[0].name[1] = 'a';
-        m_pScores[0].name[2] = 'a';
-        m_pScores[0].score = 500;
+        m_pScores[0].name[0] = 'A';
+        m_pScores[0].name[1] = 'A';
+        m_pScores[0].name[2] = 'A';
+        m_pScores[0].score = 50;
 
-        m_pScores[1].name[0] = 'b';
-        m_pScores[1].name[1] = 'b';
-        m_pScores[1].name[2] = 'b';
-        m_pScores[1].score = 400;
+        m_pScores[1].name[0] = 'B';
+        m_pScores[1].name[1] = 'B';
+        m_pScores[1].name[2] = 'B';
+        m_pScores[1].score = 40;
 
-        m_pScores[2].name[0] = 'c';
-        m_pScores[2].name[1] = 'c';
-        m_pScores[2].name[2] = 'c';
-        m_pScores[2].score = 300;
+        m_pScores[2].name[0] = 'C';
+        m_pScores[2].name[1] = 'C';
+        m_pScores[2].name[2] = 'C';
+        m_pScores[2].score = 30;
 
-        m_pScores[3].name[0] = 'd';
-        m_pScores[3].name[1] = 'd';
-        m_pScores[3].name[2] = 'd';
-        m_pScores[3].score = 200;
+        m_pScores[3].name[0] = 'D';
+        m_pScores[3].name[1] = 'D';
+        m_pScores[3].name[2] = 'D';
+        m_pScores[3].score = 20;
 
-        m_pScores[4].name[0] = 'e';
-        m_pScores[4].name[1] = 'e';
-        m_pScores[4].name[2] = 'e';
-        m_pScores[4].score = 100;
+        m_pScores[4].name[0] = 'E';
+        m_pScores[4].name[1] = 'E';
+        m_pScores[4].name[2] = 'E';
+        m_pScores[4].score = 10;
 
         SaveScores();
         LoadScores();
@@ -110,12 +110,32 @@ bool Highscore::EvaluateScore(unsigned int score)
     return false;
 }
 
-void Highscore::AddScore(Scoring entry)
-{
-}
-
 void Highscore::AddScore(const char* name, unsigned int score)
 {
+    if (score > GetInstance().m_pScores[4].score)
+    {
+        Scoring entry;
+        entry.name[0] = name[0];
+        entry.name[1] = name[1];
+        entry.name[2] = name[2];
+        entry.score = score;
+        GetInstance().m_pScores[4] = entry;
+
+        unsigned int counter = 3;
+
+        while (counter >= 0)
+        {
+            if (GetInstance().m_pScores[counter].score < entry.score)
+            {
+                GetInstance().m_pScores[counter + 1] = GetInstance().m_pScores[counter];
+                GetInstance().m_pScores[counter--] = entry;
+            }
+            else 
+                break;
+        }
+
+        GetInstance().SaveScores();
+    }
 }
 
 const char* Highscore::GetName(unsigned int entry)
