@@ -56,7 +56,7 @@ bool Explosion::CheckCollision(Character* character)
 		if (abs(xDiff) < m_Rad && (yDiff) < m_Rad)
 		{
 			float angle = atan2(abs(centerDiffY), abs(centerDiffX));
-			float mag = 20000 / sqrt(pow(centerDiffX, 2) + pow(centerDiffY, 2));
+			float mag = 10000 * SCALE / sqrt(pow(centerDiffX, 2) + pow(centerDiffY, 2));
 
 			float explodeX = mag * cos(angle) * centerDiffX / abs(centerDiffX);
 			float explodeY = mag * sin(angle) * centerDiffY / abs(centerDiffY);

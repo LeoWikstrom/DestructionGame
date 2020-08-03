@@ -63,6 +63,8 @@ MenuState::~MenuState()
 		delete m_EnemySprite[i];
 		delete m_EnemyTex[i];
 	}
+	m_EnemySprite.clear();
+	m_EnemyTex.clear();
 }
 
 void MenuState::Update(float dt, sf::RenderWindow* window)
