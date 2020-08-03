@@ -4,7 +4,7 @@
 #include "Config.h"
 #include <iostream>
 Terrain::Terrain() : m_pImage(new sf::Image()), m_pTexture(new sf::Texture), m_pSprite(new sf::Sprite),
-m_pSecImage(nullptr), m_pMainImage(nullptr)//, m_pSecTexture(new sf::Texture()), m_pSecSprite(new sf::Sprite())
+m_pSecImage(nullptr), m_pMainImage(nullptr)
 {
 }
 
@@ -15,8 +15,6 @@ Terrain::~Terrain()
 	delete m_pSprite;
 	delete m_pSecImage;
 	delete m_pMainImage;
-	//delete m_pSecTexture;
-	//delete m_pSecSprite;
 }
 
 void RecursiveGenTerrainHelper(int startHeight, int endHeight, int maxHeight, int minHeight, unsigned int length, unsigned int divisions, unsigned int maxDisplacement, std::vector<int>* midPoints)
@@ -184,10 +182,6 @@ void Terrain::GenSecondTerrain(unsigned int endHeight, int maxHeight, int minHei
 	m_pSprite->setTexture(*m_pTexture);
 	m_pSprite->setTextureRect(sf::IntRect(0, 0, Config::GetInstance().GetWindowSizeWidth()*2, Config::GetInstance().GetWindowSizeHeight()));
 	m_pSprite->setPosition(m_pSprite->getPosition().x + lastImageLength, 0);
-	//m_pSecTexture->loadFromImage(*m_pSecImage);
-	//m_pSecSprite->setTexture(*m_pSecTexture);
-	//m_pSecSprite->setTextureRect(sf::IntRect(0, 0, Config::GetInstance().GetWindowSizeWidth(), Config::GetInstance().GetWindowSizeHeight()));
-	//m_pSecSprite->setPosition(m_pSprite->getPosition().x + m_pImage->getSize().x, 0);
 }
 
 sf::Image& Terrain::GetTerrain()
@@ -204,5 +198,9 @@ void Terrain::Update()
 void Terrain::Render(sf::RenderWindow* window)
 {
 	window->draw(*m_pSprite);
-	//window->draw(*m_pSecSprite);
+}
+
+void Terrain::Render(sf::RenderTexture* tex)
+{
+	tex->draw(*m_pSprite);
 }

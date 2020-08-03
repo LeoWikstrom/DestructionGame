@@ -24,7 +24,6 @@ protected:
 	int m_Power;
 	int m_Direction;
 	bool m_Shooting;
-	//std::vector<sf::Vector2f*> m_Explosions;
 	std::vector<Explosion*>* m_pExplosions;
 	sf::Image* m_pTerrainImage;
 

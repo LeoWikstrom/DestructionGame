@@ -43,7 +43,21 @@ const sf::Vector2f Entity::GetPosition()
 
 const sf::Vector2f Entity::GetPositionMiddle()
 {
-	return m_pSprite->getPosition() + sf::Vector2f(m_pSprite->getGlobalBounds().width / 2, m_pSprite->getGlobalBounds().height / 2);
+
+	sf::Vector2f vec1(m_LeftBound + ((m_RightBound - m_LeftBound) / 2) - m_OffsetBounds, m_TopBound + (m_BottomBound - m_TopBound) / 2);
+	sf::Vector2f vec2 (m_pSprite->getPosition() + sf::Vector2f(m_pSprite->getGlobalBounds().width / 2, m_pSprite->getGlobalBounds().height / 2));
+
+	return vec1;
+}
+
+const sf::Vector2i Entity::GetHorizontalBounds()
+{
+	return sf::Vector2i(m_LeftBound - m_OffsetBounds, m_RightBound - m_OffsetBounds);
+}
+
+const sf::Vector2i Entity::GetVerticalBounds()
+{
+	return sf::Vector2i(m_TopBound, m_BottomBound);
 }
 
 void Entity::SetPosition(int x, int y)
@@ -60,8 +74,8 @@ void Entity::SetPosition(sf::Vector2f position)
 
 void Entity::UpdateBounds()
 {
-	m_LeftBound = ((int)m_pSprite->getGlobalBounds().left + m_BoundOffsetX * SCALE + m_OffsetBounds);// % (Config::GetInstance().GetWindowSizeWidth() * 2);
-	m_RightBound = ((int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - m_BoundOffsetX * SCALE + m_OffsetBounds);// % (Config::GetInstance().GetWindowSizeWidth() * 2);
+	m_LeftBound = ((int)m_pSprite->getGlobalBounds().left + m_BoundOffsetX * SCALE + m_OffsetBounds);
+	m_RightBound = ((int)m_pSprite->getGlobalBounds().left + (int)m_pSprite->getGlobalBounds().width - m_BoundOffsetX * SCALE + m_OffsetBounds);
 	m_TopBound = (int)m_pSprite->getGlobalBounds().top + m_BoundOffsetY * SCALE;
 	m_BottomBound = (int)m_pSprite->getGlobalBounds().top + (int)m_pSprite->getGlobalBounds().height - m_BoundOffsetY * SCALE;
 }

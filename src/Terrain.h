@@ -6,6 +6,7 @@ namespace sf
 	class Texture;
 	class Sprite;
 	class RenderWindow;
+	class RenderTexture;
 }
 
 class Terrain
@@ -27,6 +28,7 @@ public:
 	sf::Image& GetTerrain();
 	void Update();
 	void Render(sf::RenderWindow* window);
+	void Render(sf::RenderTexture* tex);
 };
 
 

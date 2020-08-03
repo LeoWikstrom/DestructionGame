@@ -34,10 +34,8 @@ PlayState::PlayState(Game * game, sf::Font* font) : GameState(game), m_pTerrain(
 	{
 		char path[] = "..\\resources\\blobert1.png";
 		path[20] = ((i + (i % 2)) / 2) + 48;
-		m_Enemies.push_back(new Enemy(path, "..\\resources\\gun_small.png", 200 + 25 * ((i - 1) % 3), i, ((i - 1) % 3) + 1));
+		m_Enemies.push_back(new Enemy(path, "..\\resources\\gun_small.png", &m_Explosions, 200 + 25 * (((i + (i % 2)) / 2) - 1), i, (i + (i % 2)) / 2));
 	}
-
-	//sf::Image terrain = m_pTerrain->GetTerrain();
 
 	m_pLifeTex->loadFromFile("..\\resources\\heart.png");
 	m_ppLifeSprites = new sf::Sprite * [m_pPlayer->GetMaxHealth()];
@@ -260,12 +258,14 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 	{
 		m_pTerrain->Update();
 	}
-	m_pPlayer->Update(dt, window, m_CameraOffset);
-	for (int i = 0; i < m_Enemies.size(); ++i)
+
+	for (int i = 0; i < m_Explosions.size(); i++)
 	{
-		m_Enemies[i]->Update(dt, window, m_CameraOffset);
-		m_Enemies[i]->CheckForPlayer(m_pPlayer->GetPosition().x, m_pPlayer->GetPosition().y);
-		m_Enemies[i]->CheckTerrainCollision(&m_pTerrain->GetTerrain());
+		m_Explosions[i]->CheckCollision(m_pPlayer);
+		for (int j = 0; j < m_Enemies.size(); ++j)
+		{
+			m_Explosions[i]->CheckCollision(m_Enemies[j]);
+		}
 	}
 
 	std::vector<unsigned int> expToRemove;
@@ -274,6 +274,31 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 		m_Explosions[i]->Update(dt, window);
 		if (!m_Explosions[i]->ShouldLive())
 			expToRemove.push_back(i);
+	}
+
+	m_pPlayer->Update(dt, window, m_CameraOffset);
+
+	std::vector<unsigned int> enemiesToDelete;
+
+	for (unsigned int i = 0; i < m_Enemies.size(); i++)
+	{
+		if (m_Enemies[i]->GetCurrentHealth() == 0)
+		{
+			Score::AddKillScore(5 * m_Enemies[i]->GetMaxHealth() * m_Enemies[i]->GetMaxHealth());
+			enemiesToDelete.push_back(i);
+		}
+		else if (m_Enemies[i]->GetPosition().x < (m_CameraOffset - Config::GetInstance().GetWindowSizeWidth()))
+		{
+			enemiesToDelete.push_back(i);
+		}
+	}
+
+	std::rotate(m_Enemies.begin(), m_Enemies.begin() + enemiesToDelete.size(), m_Enemies.end());
+
+	for (int i = 0; i < m_Enemies.size(); ++i)
+	{
+		m_Enemies[i]->Update(dt, window, m_CameraOffset);
+		m_Enemies[i]->CheckForPlayer(m_pPlayer->GetPosition().x, m_pPlayer->GetPosition().y);
 	}
 
 	for (int i = expToRemove.size() - 1; i >= 0; i--)
@@ -302,27 +327,6 @@ void PlayState::Update(float dt, sf::RenderWindow * window)
 
 	m_pVisScore->setString(std::to_string(Score::GetScore()));
 	m_pVisScore->setPosition(m_CameraOffset, 0);
-
-	std::vector<unsigned int> enemiesToDelete;
-	
-	for (unsigned int i = 0; i < m_Enemies.size(); i++)
-	{
-		if (m_Enemies[i]->GetCurrentHealth() == 0)
-		{
-			Score::AddKillScore(5 * m_Enemies[i]->GetMaxHealth() * m_Enemies[i]->GetMaxHealth());
-			enemiesToDelete.push_back(i);
-		}
-		else if (m_Enemies[i]->GetPosition().x < (m_CameraOffset - Config::GetInstance().GetWindowSizeWidth()))
-		{
-			enemiesToDelete.push_back(i);
-		}
-	}
-
-	//for (int i = enemiesToDelete.size() - 1; i >= 0; i--)
-	//{
-		//m_Enemies.erase(m_Enemies.begin() + enemiesToDelete[i]);
-		//std::rotate(m_Enemies.begin(), m_Enemies.begin() + enemiesToDelete.size(), m_Enemies.end());
-	//}
 
 	if (m_pPlayer->GetCurrentHealth() == 0 && !m_pPlayer->IsExploded())
 	{

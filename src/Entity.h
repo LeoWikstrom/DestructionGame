@@ -47,6 +47,8 @@ public:
 	virtual bool CheckTerrainCollision(sf::Image* terrain);
 	virtual const sf::Vector2f GetPosition();
 	virtual const sf::Vector2f GetPositionMiddle();
+	virtual const sf::Vector2i GetHorizontalBounds();
+	virtual const sf::Vector2i GetVerticalBounds();
 	virtual void SetPosition(int x, int y);
 	virtual void SetPosition(sf::Vector2f position);
 	virtual void UpdateBounds();

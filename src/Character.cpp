@@ -53,12 +53,6 @@ void Character::Move(float dt)
 	m_pSprite->move(m_SpeedX * dt, m_SpeedY * dt);
 	m_pWeaponSprite->move(m_SpeedX * dt, m_SpeedY * dt);
 	UpdateBounds();
-
-	//if (abs(m_SpeedX) > 0)
-	//{
-	//	printf("Player position: %f, %f\n", m_pSprite->getPosition().x, m_pSprite->getPosition().y);
-	//}
-	//	printf("BoundsX: %d, %d\n", m_LeftBound, m_RightBound);
 }
 
 bool Character::CheckTerrainCollision(sf::Image * terrain)
@@ -123,7 +117,6 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 					}
 				}
 
-				m_Exploded = false;
 				if (m_SpeedY >= 0)
 				{
 					if (!m_Jumping)
@@ -132,6 +125,7 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 					}
 					m_Falling = false;
 					m_FallingTime = 0;
+					m_Exploded = false;
 				}
 
 				if ((walkableLeft && m_SpeedX < 0 || walkableRight && m_SpeedX > 0) && !m_Jumping && !m_Falling && !fullStop)
@@ -181,22 +175,9 @@ bool Character::CheckTerrainCollision(sf::Image * terrain)
 		}
 	}
 
-	if (m_Exploded && !m_Invulnerable)
-	{
-		m_CurrentHealth = m_CurrentHealth > 0 ? m_CurrentHealth - 1 : 0;
-		m_Invulnerable = true;
-	}
-	else if (!m_Exploded && m_Invulnerable)
+	if (!m_Exploded && m_Invulnerable)
 	{
 		m_Invulnerable = false;
-	}
-
-	for (int i = 0; i < m_pExplosions->size(); i++)
-	{
-		if ((*m_pExplosions)[i]->CheckCollision(this))
-		{
-			bool hej = true;
-		}
 	}
 
 	if (m_Projectiles.front()->IsShooting())
@@ -277,7 +258,8 @@ void Character::Explode(sf::Vector2f angle)
 	{
 		m_SpeedY = (angle.y / m_Weight) * SCALE;
 		m_SpeedX = (angle.x / m_Weight) * SCALE;
-		//m_WalkingSpeed = 50 * SCALE * -(2 * m_pCurrentKeyFrame->y - 1) * (m_WalkingSpeed != 0);
 		m_Exploded = true;
+		m_Invulnerable = true;
+		m_CurrentHealth = m_CurrentHealth > 0 ? m_CurrentHealth - 1 : 0;
 	}
 }

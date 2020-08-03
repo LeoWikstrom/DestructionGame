@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <stdio.h>
 
-Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, std::vector<Explosion*>* explosions, int detectionRadius, int accuracy, int health) : Character(texturePath, weaponTexturePath, explosions, health)
+Enemy::Enemy(const char* texturePath, const char* weaponTexturePath, std::vector<Explosion*>* explosions, int detectionRadius, int position, int health) : Character(texturePath, weaponTexturePath, explosions, health)
 {
 	m_pKeyFrameSize->x = 16;
 	m_pKeyFrameSize->y = 16;
@@ -80,7 +80,7 @@ void Enemy::AimForPlayer(int playerX, int playerY)
 	{
 		if (m_Shoot)
 		{
-			//Shoot();
+			Shoot();
 			m_LastDistance = 0;
 			m_SecondLastDistance = 0;
 			m_LastAngle = 2;
@@ -107,7 +107,6 @@ void Enemy::AimForPlayer(int playerX, int playerY)
 		}
 		if ((lastDiff < diff && secondLastDiff > lastDiff && m_SecondLastDistance != 0))
 		{
-			//printf("SHOOT!\n");
 			m_Shoot = true;
 		}
 		else
@@ -119,9 +118,6 @@ void Enemy::AimForPlayer(int playerX, int playerY)
 			}
 			RotateWeapon(m_RotateDown);
 
-			//printf("Angle: %f\nTarget distance: %f\nDistance: %f\n", angle, m_Projectiles.front()->GetPosition().x - playerX, x);
-			//printf("Last distance: %f\nSecond last distance: %f\n\n", m_LastDistance, m_SecondLastDistance);
-
 			m_SecondLastDistance = m_LastDistance;
 			m_LastDistance = x;
 		}
@@ -132,25 +128,6 @@ void Enemy::AimForPlayer(int playerX, int playerY)
 			SetWeaponRotation(315);
 			m_Shoot = true;
 		}
-		
-		//if ((m_SecondLastDistance > m_LastDistance && m_LastDistance < x && abs(m_LastDistance - (m_Projectiles.front()->GetPosition().x - playerX)) > 50) && abs(m_LastDistance - (m_Projectiles.front()->GetPosition().x - playerX)) < m_LastDistance)
-		//{
-		//	m_LastAngle = angle;
-		//	SetWeaponRotation(315);
-		//	m_pSprite->setTextureRect(sf::IntRect(5 * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
-
-		//	printf("SHOOT DOWN!\n");
-		//	//Shoot();
-		//}
-		//else if ((m_SecondLastDistance < m_LastDistance && m_LastDistance > x && abs(m_LastDistance - (m_Projectiles.front()->GetPosition().x - playerX)) > 50) && abs(m_LastDistance - (m_Projectiles.front()->GetPosition().x - playerX)) > m_LastDistance)
-		//{
-		//	m_LastAngle = angle;
-		//	SetWeaponRotation(45);
-		//	m_pSprite->setTextureRect(sf::IntRect(4 * m_pKeyFrameSize->x, m_pCurrentKeyFrame->y * m_pKeyFrameSize->y, m_pKeyFrameSize->x, m_pKeyFrameSize->y));
-
-		//	printf("SHOOT UP!\n");
-		//	//Shoot();
-		//}
 	}
 
 }
@@ -211,10 +188,7 @@ void Enemy::Update(float dt, sf::RenderWindow * window, float offset)
 		UpdateBounds();
 		m_CurrentHealth = m_FullHealth;
 	}
-	/*if (m_RightBound >= (int)(offset + (Config::GetInstance().GetWindowSizeWidth() / 2)) + m_OffsetBounds && m_SpeedX > 0)
-	{
-		m_SpeedX *= -1;
-	}*/
+
 	if (m_TopBound > Config::GetInstance().GetWindowSizeHeight())
 	{
 		m_CurrentHealth = 0;
@@ -222,7 +196,6 @@ void Enemy::Update(float dt, sf::RenderWindow * window, float offset)
 
 	if (m_CurrentHealth == 0)
 	{
-		printf("DEAD!\n");
 		m_pSprite->move(Config::GetInstance().GetWindowSizeWidth() * 2, -m_TopBound);
 		m_pWeaponSprite->move(Config::GetInstance().GetWindowSizeWidth() * 2, -m_TopBound);
 		m_SpeedX = 0;
