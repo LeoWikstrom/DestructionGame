@@ -51,7 +51,7 @@ bool Explosion::CheckCollision(Character* character)
 		float xDiff = abs(x - leftBound);
 		xDiff = std::min(xDiff, abs(x - rightBound));
 		float yDiff = abs(y - topBound);
-		yDiff = std::min(yDiff, y - bottomBound);
+		yDiff = std::min(yDiff, abs(y - bottomBound));
 
 		if (abs(xDiff) < m_Rad && (yDiff) < m_Rad)
 		{
